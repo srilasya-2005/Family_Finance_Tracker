@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TEAM2 - Family Finance Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+
+<body>
+  <header>
+    <h1 class="small-header">FAMILY FINANCE TRACKER</h1>
+    <nav>
+      <button id="expense-btn" class="hover-effect">Expense Management</button>
+      <button id="budget-btn" class="hover-effect">Budget & Savings Management</button>
+      <button id="insights-btn" class="hover-effect">Insights Dashboard</button>
+      <span id="user-greeting">Hello, User!</span>
+      <button id="dark-mode-toggle">🌙</button>
+    </nav>
+  </header>
+
+  <div id="loading-message">Calculating your Spendings..... 💸</div>
+
+  <section class="stats">
+    <div class="box green" id="total-spent">TOTAL SPENT:</div>
+    <div class="box pink" id="expense-count">NO OF EXPENSES: </div>
+    <div class="box blue" id="average-expense">AVERAGE EXPENSE: </div>
+    <div class="box gray" id="highest-category">HIGHEST SPENT CATEGORY: </div>
+    <div class="box orange" id="highest-amount">HIGHEST SPENT AMOUNT: </div>
+  </section>
+
+  <section class="main-content">
+    <section class="expense-list">
+      <h2>Expense List</h2>
+      <div class="filter">
+        <label>From: <input type="date" id="from-date" class="small-input" name="from-date" /></label>
+        <label>To: <input type="date" id="to-date" class="small-input" name="to-date" /></label>
+        <button id="filter-btn" class="hover-effect">Filter</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Amount(₹)</th>
+            <th>Edit/Delete</th>
+            <th>Uploaded File</th>
+          </tr>
+        </thead>
+        <tbody id="expense-table-body">
+          <!-- Data dynamically added here -->
+        </tbody>
+      </table>
+    </section>
+
+    <section class="add-expense">
+      <h2>Add Expense</h2>
+      <form id="expense-form">
+        <label>Name: <input type="text" id="name" name="name" required /></label>
+        <label>
+          Category:
+          <select id="category" name="category" required>
+            <option value="">Select</option>
+            <option value="Food">Food 🍕</option>
+            <option value="Entertainment">Entertainment 🤡</option>
+            <option value="Bills">Bills 💸</option>
+            <option value="Shopping">Shopping 🎶</option>
+            <option value="Therapy">Therapy 💀</option>
+          </select>
+        </label>
+        <label>Date: <input type="date" id="date" name="date" required /></label>
+        <label>Amount(₹): <input type="number" id="amount" name="amount" min="1" required /></label>
+        <label>Description: <textarea id="description" name="description"></textarea></label>
+        <label>Upload File: <input type="file" id="file-upload" name="file-upload" accept=".jpg,.png,.pdf,.jpeg,.docx,.xlsx" /></label>
+        <button type="submit" class="hover-effect">Submit</button>
+      </form>
+    </section>
+  </section>
+</body>
+</html>
