@@ -11,7 +11,7 @@ A simple Expense Tracker web application with a Flask backend and a frontend bui
 
 1. **Create a virtual environment (optional but recommended)**
     python -m venv .venv
-    .venv/bin/activate  
+    .venv/scripts/activate  
 
 2. **Install dependencies**
     pip install -r requirements.txt

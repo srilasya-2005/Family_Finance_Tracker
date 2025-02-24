@@ -2,16 +2,22 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+class Category(db.Model):
+    __tablename__ = 'category'
+    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False, unique=True)
+    category_desc = db.Column(db.String(255), nullable=True)  # Ensure this column exists
+
+    expenses = db.relationship('Expense', backref='category', lazy=True)
+
 class Expense(db.Model):
-    """Expense model representing financial expenses."""
-    id = db.Column(db.Integer, primary_key=True)  # Unique identifier
-    name = db.Column(db.String(100), nullable=False)  # Expense name
-    category = db.Column(db.String(50), nullable=False)  # Category
-    date = db.Column(db.String(10), nullable=False)  # Date (YYYY-MM-DD)
-    amount = db.Column(db.Float, nullable=False)  # Amount spent
-    description = db.Column(db.Text, nullable=True)  # Optional description
-    file_name = db.Column(db.String(255), nullable=True)  # Store uploaded file name
-
-    def __repr__(self):
-        return f"<Expense {self.name} - {self.amount}>"
-
+    __tablename__ = 'expense'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    date = db.Column(db.Date, nullable=False)  # Ensure only the date is stored
+    description = db.Column(db.Text)
+    image_data = db.Column(db.LargeBinary)  # Add this line to store image data
+    file_type = db.Column(db.String(50))  # Add this line to store the file type
+    created_on = db.Column(db.DateTime, default=db.func.current_timestamp())
