@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Savings{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/savings.css') }}">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>   
+{% endblock %}
+
+{% block content %}
+
+    <div class="main-content">
+        <div class="table-list">
+            <div class="table-header">
+                <h2>All Savings Targets</h2>
+                <div class="controls">
+                    <!-- jinja templates for privilages -->
+                    {% if privilege == 'edit' %}
+                        <button onclick="showForm('savingTargetForm')">Add Saving Target</button>
+                    {% endif %}
+                    <button id="filterToggle" onclick="toggleFilter()">📅</button>
+                </div>
+                <!-- Month & Year Filter (Initially Hidden) -->
+                <div id="filterOptions" class="filter-dropdown">
+                    <label for="tableMonthFilter">Month:</label>
+                    <select id="tableMonthFilter">
+                        <option value="">Select Month</option>
+                    </select>
+                
+                    <label for="tableYearFilter">Year:</label>
+                    <select id="tableYearFilter">
+                        <option value="">Select Year</option>
+                    </select>
+                
+                    <button onclick="updateTables()">Apply</button>
+                </div>                
+            </div>
+            <table id="savingsTable" class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Goal Name</th>
+                        <th>Target Amount</th>
+                        <th>Target Date</th>
+                        <th>Amount Saved</th>
+                        <th>Remaining Amount</th>
+                        <th>Payment Mode</th>
+                        {% if privilege == 'edit' %}
+                            <th>Edit/Delete</th>
+                            <th>Update Savings</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <!-- Pagination Buttons -->
+            <div id="pagination">
+                <button id="prevPage" onclick="prevPage()" disabled>
+                    <span>&#9664;</span> <!-- Left arrow icon -->
+                </button>
+                <span id="pageInfo">Page 1</span>
+                <button id="nextPage" onclick="nextPage()">
+                    <span>&#9654;</span> <!-- Right arrow icon -->
+                </button>
+            </div>
+        </div>
+
+        <!-- Change from popup to form-popup for savingTargetForm -->
+        <div id="savingTargetForm" class="popup"  >
+            <div class="popup-content" >
+                <button id="close-popup-btn" class="close-btn" onclick="closeForm('savingTargetForm')">X</button>
+                <h2 style="text-align: center; flex: 1;">Add Saving Target</h2>
+                <form class="form-container">
+                    <label for="saving_category_name">Category Name:</label>
+                    <select id="saving_category_name" required>
+                        <option value="" disabled selected>Select</option>
+                        <option value="Education Fund">Education Fund</option>
+                        <option value="Vacation Fund">Vacation Fund</option> 
+                        <option value="Emergency Fund">Emergency Fund</option>
+                        <option value="Home Improvement">Home Improvement</option>
+                        <option value="Retirement Fund">Retirement Fund</option>
+                        <option value="Others">Others</option>
+                        <option value="Education">Education</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Health">Health</option>
+                    </select>
+                    
+                    <label for="saving_category_description">Category Description:</label>
+                    <input type="text" id="saving_category_description" placeholder="Category Description">
+                    
+                    <label for="savings_goal_name">Goal Name:</label>
+                    <input type="text" id="savings_goal_name" placeholder="Goal Name" required>
+                    
+                    <label for="savings_target_amount">Target Amount:</label>
+                    <input type="number" id="savings_target_amount" placeholder="Target Amount" required>
+                    
+                    <label for="savings_target_date">Target Date:</label>
+                    <input type="date" id="savings_target_date" required>
+                    
+                    <button type="submit">Add Saving Target</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Already using form-popup -->
+        <div class="popup" id="savingsForm">
+            <div class="popup-content" >
+                <button id="close-popup-btn" class="close-btn" onclick="closeForm('savingsForm')">X</button>
+                <h2 style="text-align: center; flex: 1;">Add Savings</h2>
+                <form class="form-container">
+                    <input type="hidden" id="savings_target_id">
+                    
+                    <label for="savings_amount_saved">Amount Saved:</label>
+                    <input type="number" id="savings_amount_saved" placeholder="Amount Saved" required>
+                    
+                    <label for="savings_payment_mode">Payment Mode:</label>
+                    <input type="text" id="savings_payment_mode" placeholder="Payment Mode" required>
+                    
+                    <label for="savings_date_saved">Date Saved:</label>
+                    <input type="date" id="savings_date_saved" required>
+                    
+                    <button type="submit">Add Savings</button>
+                </form>
+            </div>
+        </div>
+    </div>   
+    <!-- Main graph section from below -->
+
+    </div>
+    <div class="filter-container">
+        <select id="monthFilter">
+            <option value="">Select Month</option>
+        </select>
+    
+        <select id="yearFilter">
+            <option value="">Select Year</option>
+        </select>
+        <button onclick="updateChart()">Apply Filter</button>
+        <p id="error-message" style="color: red; display: none;">Please select both month and year.</p>
+    </div>
+    
+    <script>
+        var userPrivilege = "{{ privilege }}";
+        console.log("User Privilege:", userPrivilege); //logging in console to see it
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/get_savings_filters')
+                .then(response => response.json())
+                .then(data => {
+                    let monthDropdown = document.getElementById("monthFilter");
+                    let yearDropdown = document.getElementById("yearFilter");
+    
+                    let addedMonths = new Set();
+                    let addedYears = new Set();
+    
+                    data.forEach(item => {
+                        if (!addedMonths.has(item.month)) {
+                            let monthOption = document.createElement("option");
+                            monthOption.value = item.month;
+                            monthOption.textContent = new Date(0, item.month - 1).toLocaleString('default', { month: 'long' });
+                            monthDropdown.appendChild(monthOption);
+                            addedMonths.add(item.month);
+                        }
+    
+                        if (!addedYears.has(item.year)) {
+                            let yearOption = document.createElement("option");
+                            yearOption.value = item.year;
+                            yearOption.textContent = item.year;
+                            yearDropdown.appendChild(yearOption);
+                            addedYears.add(item.year);
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching filters:", error));
+        });
+    
+        function updateChart() {
+            let month = document.getElementById("monthFilter").value;
+            let year = document.getElementById("yearFilter").value;
+            let img = document.getElementById("savingsPieChart");  // Correct ID
+            let gaugeChartContainer = document.getElementById("gaugeChartContainer");  // Gauge Chart Div
+            let errorMessage = document.getElementById("error-message");
+            if (!month || !year) {
+                errorMessage.style.display = "block"; // Show error message
+                return; // Stop execution if either month or year is not selected
+            } else {
+                errorMessage.style.display = "none"; // Hide error message if both are selected
+            }
+            let queryParams = new URLSearchParams();
+            if (month) queryParams.append("month", month);
+            if (year) queryParams.append("year", year);
+            fetch("/gauge_chart?" + queryParams.toString())
+    .then(response => response.text())
+    .then(html => {
+        gaugeChartContainer.innerHTML = html; 
+
+        // Execute any embedded scripts in the response
+        let scripts = gaugeChartContainer.getElementsByTagName("script");
+        for (let i = 0; i < scripts.length; i++) {
+            let newScript = document.createElement("script");
+            newScript.textContent = scripts[i].textContent;
+            document.body.appendChild(newScript);  // Run script in the body
+        }
+    });
+
+            img.src = "/savings_chart?" + queryParams.toString();  // Update image source
+        }
+    </script>
+
+            <div class="graph-section">
+                <h3>Bar graph</h3>
+                <p>Visualize Your Financial Growth. Insights at Every Bar!</p>
+                <div class="bar-graph">
+                    <div id="chart">
+                        <script>
+                                fetch("/get_savings_data")
+                                .then(response => response.json())
+                                .then(data => {
+                                    let usernames = data.map(item => item.username);
+                                    let achieved_savings = data.map(item => item.Achieved_Savings);
+                                    let target_savings = data.map(item => item.Target_Savings);
+                                    let trace = {
+                                        x: usernames,
+                                        y: achieved_savings,
+                                        type: "bar",
+                                        text: achieved_savings.map((s, i) => `Saved: ${s}<br>Target: ${target_savings[i]}`),
+                                        hoverinfo: "text",
+                                        textposition: 'none', // Prevent text from showing on bar itself
+                                        marker: { color: "royalblue" }
+                                    };
+
+                                    
+                                    let layout = {
+                                        title: {
+                                            text: "User Saving",
+                                            font: { color: "black" }
+                                        },
+                                        xaxis: { 
+                                            title: { 
+                                                text: "Users", 
+                                                font: { color: "black" },  // Title color
+                                            }, 
+                                            tickfont: { color: "black" }, 
+                                            automargin: true
+                                        },
+                                        yaxis: { 
+                                            title: { 
+                                                text: "Savings", 
+                                                font: { color: "black" },  // Title color
+                                                standoff: 20  // Increased spacing
+                                            }, 
+                                            tickfont: { color: "black" }, 
+                                            automargin: true
+                                        },
+                                        margin: { l: 100 },  // Increase left margin to allow space
+                                        
+                                        paper_bgcolor: "rgba(0,0,0,0)",  /* Fully transparent chart background */
+                                        plot_bgcolor: "rgba(0,0,0,0)",   /* Fully transparent plot area */
+                                        margin: { t: 50, l: 50, r: 70, b: 50 }
+                                    };
+                                    
+                                    var config ={
+                                        displayModeBar: false,
+                                        textposition: 'none'
+                                    }
+                                    Plotly.newPlot("chart", [trace], layout,config);
+                                });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="small-graphs">
+            <div class="small-graph">
+                <h3>Pie chart</h3>
+                <img id="savingsPieChart" src="/savings_chart" class="img-fluid" alt="Savings Pie Chart">
+            </div>
+            <div class="small-graph">
+                <h3>Gauge Chart</h3>
+                <div id="gaugeChartContainer" class="gauge-chart">{{ gauges|safe}}</div>
+            </div>
+        </div>
+
+<script src="{{ url_for('static', filename='savings.js') }}"></script>
+
+{% endblock %}

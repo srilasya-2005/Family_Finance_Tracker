@@ -30,6 +30,3 @@ A simple Expense Tracker web application with a Flask backend and a frontend bui
     SQLAlchemy (Database ORM)
     HTML, CSS, JavaScript (Frontend)
     SQLite (Database)
-
-**model.py**
-    The models.py file is responsible for defining the database structure using SQLAlchemy, an Object Relational Mapper (ORM) for Python. It helps interact with the database using Python objects instead of writing raw SQL queries.

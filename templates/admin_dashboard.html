@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin_dash.css') }}">
+</head>
+<body>
+    <h1>ADMIN DASHBOARD</h1>
+    
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <div class="welcome-text">
+                <h2>Hello Admin!! Welcome back.</h2>
+                <p>Your approval queue is updated. New, pending, and processed requests are listed below. Ensure timely approvals to maintain an efficient workflow.</p>
+            </div>
+            <div class="welcome-image"></div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="table-container">
+            <!-- Table with fixed headers -->
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Phone No</th>
+                        <th>Created By</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Action Taken</th>
+                    </tr>
+                </thead>
+            </table>
+            
+            <!-- Scrollable table body with visible scrollbar -->
+            <div class="table-scrollable-body">
+                <table class="user-table" id="user-data-table">
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>{{ user.created_on }}</td>
+                            <td>{{ user.role }}</td>
+                            <td>{{ user.status }}</td>
+                            <td>
+                                <form action="{{ url_for('update_approved_by') }}" method="POST">
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <div class="approval-options">
+                                        <div class="approval-option">
+                                            <input type="checkbox" id="approve-{{ user.id }}" name="approve"
+                                                   onchange="this.form.submit()"
+                                                   {% if user.status == 'approved' %}checked{% endif %}>
+                                            <label for="approve-{{ user.id }}">
+                                                {% if user.status == 'pending' %}
+                                                    Disapprove
+                                                {% else %}
+                                                    Approve
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                      
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <a href="{{ url_for('logout') }}" class="logout-btn">LOGOUT</a>
+        <div class="navigation">
+            {% if users.has_prev %}
+                <a href="{{ url_for('admin_dashboard', page=users.prev_num) }}" class="nav-btn">←</a>
+            {% endif %}
+            {% if users.has_next %}
+                <a href="{{ url_for('admin_dashboard', page=users.next_num) }}" class="nav-btn">→</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+        <h1> Family Monthly Bills List</h1>
+
+        <!-- Family Search Bar -->
+        <input type="text" id="searchBar" onkeyup="searchFamily()" placeholder="Search Family Name...">
+
+        <!-- Family Bills Table -->
+        <table id="familyTable">
+            <tr>
+                <th>Family Name</th>
+                <th>Members</th>
+                <th>Cost per Member</th>
+                <th>Monthly Bill</th>
+            </tr>
+            
+            {% for family in families %}
+            <tr>
+                <td>{{ family.name }}</td>
+                <td>{{ family.count }}</td>
+                <td>₹{{ "{:,}".format(family.cost_per_member) }}</td>
+                <td><b>₹{{ "{:,}".format(family.count * family.cost_per_member) }}</b></td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Family Bar Chart -->
+        <img src="data:image/png;base64,{{ img_data }}" alt="Family Bar Chart">
+
+    </div>
+</body>
+</html>
+    
+    <script>
+        // Minimal JavaScript hooks for backend integration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Example: Navigation buttons
+            document.getElementById('prev-page-btn').addEventListener('click', function() {
+                // Previous page logic
+            });
+            
+            document.getElementById('next-page-btn').addEventListener('click', function() {
+                // Next page logic
+            });
+        });
+
+        function searchFamily() {
+            let input = document.getElementById("searchBar").value.toUpperCase();
+            let table = document.getElementById("familyTable");
+            let tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName("td")[0]; // First column (Family Name)
+                if (td) {
+                    let textValue = td.textContent || td.innerText;
+                    tr[i].style.display = textValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

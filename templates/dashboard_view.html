@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard View{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}" />
+{% endblock %}
+
+{% block content %}
+<!-- Your dashboard edit specific content here -->
+<!-- STATS SECTION -->
+<section class="stats">
+  <div class="box green" id="total-spent">
+    Total Spent &#128184;
+    <div>₹:<span id="total-spent-value">0</span></div>
+  </div>
+  <div class="box pink" id="expense-count">
+    Expense Count &#128202;
+    <div><span id="expense-count-value">0</span></div>
+  </div>
+  <div class="box blue" id="Last-7day-Spent">
+    Last 7 Days &#128197;
+    <div>₹:<span id="last-7days-spent-value">0</span></div>
+  </div>
+  <div class="box gray" id="highest-category">
+    Top Category &#127942;
+    <div><span id="highest-category-value">N/A</span></div>
+  </div>
+  <div class="box orange" id="highest-amount">
+    Max Spend &#128221;
+    <div>₹:<span id="highest-amount-value">0</span></div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<section class="main-content">
+  <!-- EXPENSE LIST -->
+  <section class="expense-list">
+    <div class="expense-list-header">
+      <h2 style="text-align: center; flex: 1;">Expense List</h2>
+    </div>
+    <div class="filter">
+      <label>From: <input type="date" id="from-date" class="small-input" name="from-date" /></label>
+      <label>To: <input type="date" id="to-date" class="small-input" name="to-date" /></label>
+      <button id="filter-btn" class="hover-effect">&#128269;</button> <!-- 🔍 Magnifying Glass -->
+      <button id="refresh-btn" class="hover-effect">&#8635;</button> <!-- ↻ Clockwise Open Circle Arrow -->
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Amount(₹)</th>
+          <th>Uploaded File</th>
+        </tr>
+      </thead>
+      <tbody id="expense-table-body">
+        <!-- Data dynamically added here -->
+      </tbody>
+    </table>
+    <div id="expense-pagination-controls" class="pagination-controls center">
+      <!-- Pagination buttons will be dynamically added here -->
+  </div>
+  </section>
+
+  <!-- BUDGET LIST -->
+  <section class="budget-list">
+    <div class="budget-list-header">
+      <h2 style="text-align: center; flex: 1;">Budget List</h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Month</th>
+          <th>Category</th>
+          <th>Budget Amount(₹)</th>
+          <th>Recurring</th>
+        </tr>
+      </thead>
+      <tbody id="budget-table-body">
+        <!-- Data dynamically added here -->
+      </tbody>
+    </table>
+    <div id="budget-pagination-controls" class="pagination-controls center">
+      <!-- Pagination buttons will be dynamically added here -->
+    </div>
+  </section>
+</section>
+
+{% endblock %}
+
+{% block graphs %}
+<div class="container">
+  <h1>My Expenses</h1>
+  
+  <div class="chart-container">
+      <div class="graph">
+          <h3>Monthly Expenses</h3>
+          <img style="margin-top: 40px;" src="data:image/png;base64,{{ monthly_plot }}" alt="Monthly Expenses Graph">
+      </div>
+      
+      <div class="graph">
+          <h3>Filter Expenses by Category</h3>
+          <div class="filter-container">
+              <select id="year" onchange="updateCategoryPlot() ">
+                {% for year in range(current_year - 5, current_year + 6) %}
+                <option value="{{ year }}" {% if default_year == year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+              </select>
+
+              <select id="month" onchange="updateCategoryPlot()">
+                  {% for i in range(1, 13) %}
+                      <option value="{{ i }}" {% if default_month == i %}selected{% endif %}>
+                          {{ ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][i-1] }}
+                      </option>
+                  {% endfor %}
+              </select>
+          </div>
+          <img id="categoryChart" src="data:image/png;base64,{{ category_plot }}" alt="Category-wise Expenses Graph">
+      </div>
+  </div>
+      <div class = "container2">
+          <h1>Family Expenses</h1>
+          <div class="filter-container">
+              <select id="pieUser">
+                  {% for user in users %}
+                      <option value="{{ user }}" {% if user == default_user %}selected{% endif %}>
+                          {{ user }}
+                      </option>
+                  {% endfor %}
+              </select>
+          
+              <select id="pieYear">
+                  <option value="2024" {% if default_year == 2024 %}selected{% endif %}>2024</option>
+                  <option value="2025" {% if default_year == 2025 %}selected{% endif %}>2025</option>
+              </select>
+          
+              <select id="pieMonth">
+                  {% for i in range(1, 13) %}
+                      <option value="{{ i }}" {% if default_month == i %}selected{% endif %}>
+                          {{ ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][i-1] }}
+                      </option>
+                  {% endfor %}
+              </select>
+          
+              <button onclick="updateCharts()">Apply Filters</button>
+          </div>
+          <div class="chart-container2">
+          <div class="graph">
+              <h3>Budget vs Expenses</h3>          
+              <img id="pieChart" src="data:image/png;base64,{{ pie_chart }}" alt="Budget vs Expenses Pie Chart">
+          </div>
+          <div class="graph">
+              <h3>Spending Progress by Category</h3>
+              <img id="barChart" src="data:image/png;base64,{{ bar_chart }}" alt="Spending Progress Chart">
+          </div>
+          <div class="graph">
+              <h3>Family Member's Expenses By Category</h3>
+              <img id="stackedBarChart" src="data:image/png;base64,{{ stacked_bar_chart }}" alt="Stacked Bar Chart">
+          </div>                             
+          <div class="graph">
+              <h3>Budget vs. Expense (Line Chart)</h3>
+              <img id="lineChart" src="data:image/png;base64,{{ line_chart }}" alt="Budget vs. Expense Line Chart">
+          </div>
+          
+      </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard_view.js') }}" defer></script>
+<script src="{{ url_for('static', filename='graph_dash.js') }}" defer></script>
+{% endblock %}

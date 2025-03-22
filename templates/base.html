@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Family Finance Tracker{% endblock %}</title>
+    {% block styles %}{% endblock %}
+</head>
+<body>
+
+    <header>
+        <h1 class="small-header">FAMILY FINANCE TRACKER</h1>
+        <nav>
+            {% if is_super_user %}
+            <button class="super-user-button" onclick="window.location.href='/super_user_dashboard'">Super User <br>Dashboard</button>
+            {% endif %}
+            <button id="budget-btn" class="hover-effect" style="color:black" onclick="window.location.href='/dashboard'">Expense & Budget <br>Management</button>
+            <button id="insights-btn" class="hover-effect" style="color:black" onclick="window.location.href='/savings'">Savings Management</button>
+            <button class="logout-btn" onclick="if(confirm('Are you sure you want to logout?')) window.location.href='/logout'">Logout</button>
+            <button id="dark-mode-toggle">🌙</button>
+        </nav>
+    </header>
+
+         <!-- Welcome Card -->
+         <div class="welcome-card">
+            <div class="welcome-text">
+                <span id="user-greeting">Hello, {{username or 'Guest' }}</span>
+                
+                <!-- RANDOM MESSAGES -->
+                <div id="message-container">
+                    <div id="message"></div>
+                </div>  
+            </div>
+            <div class="welcome-images">
+                <!-- Replace with your image URLs -->
+                <img src="https://i.pinimg.com/736x/8e/90/80/8e9080b568929a595e9396ba8b23b04a.jpg" alt="Person analyzing data" class="welcome-image">
+                <img src="https://i.pinimg.com/736x/8e/90/80/8e9080b568929a595e9396ba8b23b04a.jpg" alt="Person analyzing data" class="welcome-image">
+                <img src="https://i.pinimg.com/736x/c1/85/a1/c185a134c6e32e2135afcb39d5b33b59.jpg" alt="Person with finances" class="welcome-image">
+            </div>
+        </div>
+
+    {% block content %}{% endblock %}
+    {% block graphs %}
+    <div id="graph-section">
+        <!-- Graph content goes here -->
+    </div>
+    {% endblock %}
+
+    <footer class="footer-gradient">
+        <div class="footer-content">
+            <div class="footer-section about">
+                <h3>About Family Finance Tracker</h3>
+                <p>A comprehensive solution for managing family finances, budgets, and expenses with advanced tracking and visualization tools.</p>
+                <div class="contact">
+                    <p><span>📞</span> +1 234 567 8900</p>
+                    <p><span>✉️</span> support@familyfinance.com</p>
+                    <p><span>🏢</span> 123 Finance Street, Money City, MC 12345</p>
+                </div>
+            </div>
+            <div class="footer-section links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Help Center</a></li>
+                </ul>
+            </div>
+            <div class="footer-section social">
+                <h3>Stay Connected</h3>
+                <div class="socials">
+                    <a href="#"><span>📱</span> Facebook</a>
+                    <a href="#"><span>📱</span> Twitter</a>
+                    <a href="#"><span>📱</span> LinkedIn</a>
+                    <a href="#"><span>📱</span> Instagram</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Family Finance Tracker. All rights reserved.</p>
+            <p>Version 1.0.0 | Last Updated: April 2025</p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+    
+    <script>
+        // Random messages configuration removed from js file
+        const messages = [
+            `${String.fromCodePoint(128184)} Counting your regrets... I mean, transactions... ${String.fromCodePoint(128184)}`,
+            `${String.fromCodePoint(127974)} Asking your bank if it's okay to proceed... ${String.fromCodePoint(128222)}`
+        ];
+
+        // Function to display random message
+        function displayRandomMessage() {
+            const messageContainer = document.getElementById("message");
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            messageContainer.textContent = randomMessage;
+            messageContainer.style.textAlign = "center";
+        }
+
+        // Call displayRandomMessage when page loads
+        document.addEventListener("DOMContentLoaded", () => {
+            displayRandomMessage();
+            setInterval(displayRandomMessage, 3000);
+
+        });
+    </script>
+</body>
+</html>

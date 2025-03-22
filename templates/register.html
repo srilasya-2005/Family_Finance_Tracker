@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/register.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h1>REGISTRATION</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" style="color: red; margin-bottom: 5%;">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        
+        <form id="registrationForm" action="{{ url_for('register') }}" method="POST">
+            <div class="form-row">
+                <label for="familyName">Family name:</label>
+                <div class="input-container">
+                    <input type="text" id="familyName" name="family_name" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="phone">Phone number:</label>
+                <div class="input-container">
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="address">Address:</label>
+                <div class="input-container">
+                    <textarea id="address" name="address" required></textarea>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="username">Username:</label>
+                <div class="input-container">
+                    <input type="text" id="username" name="username" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="email">Email:</label>
+                <div class="input-container">
+                    <input type="email" id="email" name="email" required>
+                    <div id="emailError" class="error-message">Please enter a valid email address</div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="password">Password:</label>
+                <div class="input-container">
+                    <input type="password" id="password" name="password" required>
+                    <div class="password-strength">
+                        <div id="passwordStrengthMeter" class="password-strength-meter"></div>
+                    </div>
+                    <div id="passwordError" class="error-message">Password is too weak</div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="confirmPassword">Confirm Password:</label>
+                <div class="input-container">
+                    <input type="password" id="confirmPassword" required>
+                    <div id="confirmPasswordError" class="error-message">Passwords do not match</div>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const emailInput = document.getElementById('email');
+            const emailError = document.getElementById('emailError');
+            const passwordInput = document.getElementById('password');
+            const passwordStrengthMeter = document.getElementById('passwordStrengthMeter');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const form = document.getElementById('registrationForm');
+
+            emailInput.addEventListener('input', validateEmail);
+            passwordInput.addEventListener('input', checkPasswordStrength);
+            confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+
+            function validateEmail() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value) && emailInput.value) {
+                    emailInput.classList.add('error');
+                    emailError.style.display = 'block';
+                    return false;
+                } else {
+                    emailInput.classList.remove('error');
+                    emailError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            function checkPasswordStrength() {
+                const password = passwordInput.value;
+                let strength = 0;
+
+                if (password.length >= 8) strength += 1;
+                if (password.match(/[A-Z]/)) strength += 1;
+                if (password.match(/[0-9]/)) strength += 1;
+                if (password.match(/[^A-Za-z0-9]/)) strength += 1;
+
+                passwordStrengthMeter.className = 'password-strength-meter';
+                passwordError.style.display = 'none';
+                passwordInput.classList.remove('error');
+
+                if (password.length === 0) return true;
+                if (strength < 2) {
+                    passwordStrengthMeter.classList.add('weak');
+                    passwordError.style.display = 'block';
+                    passwordInput.classList.add('error');
+                    return false;
+                } else if (strength < 4) {
+                    passwordStrengthMeter.classList.add('medium');
+                    return true;
+                } else {
+                    passwordStrengthMeter.classList.add('strong');
+                    return true;
+                }
+            }
+
+            function validatePasswordMatch() {
+                if (confirmPasswordInput.value !== passwordInput.value) {
+                    confirmPasswordInput.classList.add('error');
+                    confirmPasswordError.style.display = 'block';
+                    return false;
+                } else {
+                    confirmPasswordInput.classList.remove('error');
+                    confirmPasswordError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            form.addEventListener('submit', function (e) {
+            if (!(validateEmail() && checkPasswordStrength() && validatePasswordMatch())) {
+                e.preventDefault();
+                return;
+            }
+
+    // Show a styled alert and redirect
+    Swal.fire({
+        title: 'Registration Successful!',
+        text: 'Redirecting to login page...',
+        icon: 'success',
+        confirmButtonColor: '#4CAF50',
+        confirmButtonText: 'OK',
+        background: '#222',
+        color: '#fff'
+    }).then(() => {
+        window.location.href = '/login';
+    });
+});
+
+        });
+    </script>
+
+</body>
+</html>

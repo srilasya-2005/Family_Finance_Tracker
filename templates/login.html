@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
+</head>
+<body>
+
+    <div class="header">
+        <h1>Unified Family Finance Tracker</h1>
+    </div>
+
+    <div class="background-container">
+        <img src="https://images.unsplash.com/photo-1579621970590-9d624316904b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGNvaW5zfGVufDB8fDB8fHww&w=2000&q=100&auto=format" 
+             alt="Background" 
+             class="background-image">
+    </div>
+
+    <div class="login-section">
+        <div class="login-form">
+            <h1>LOGIN NOW</h1>
+            <p class="welcome-text">Hi, Welcome back!</p>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="color: red; margin-bottom: 5%;">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="post" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" name="email" placeholder="Enter your email" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required />
+                </div>
+
+                <div class="options">
+                    <label class="remember-me">
+                        <input type="checkbox" />
+                        Remember me
+                    </label>
+                    <a href="{{ url_for('forgot_password') }}" class="forgot-password">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-button">LOGIN</button>
+            </form>
+
+            <p class="signup-link">
+                Not Registered? <a href="{{ url_for('register') }}">Sign up</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Unified Family Finance Tracker. All rights reserved.</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,258 @@
+
+/* CONTROLS */
+.controls {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px 20px;
+    gap: 10px;
+}
+
+.controls button {
+    padding: 10px 15px;
+    background: #2196F3;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.2s ease-in-out;
+}
+
+.controls button:hover {
+    background: #1976D2;
+}
+
+
+
+/* EDIT/DELETE BUTTONS */
+button.update {
+    padding: 5px 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+    transition: 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2196F3;
+    padding: 5px 10px; /* Adjust padding to fit text */
+}
+
+
+button.update:hover {
+    background: #1976D2;
+    transform: scale(1.05);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Bar Graph Section */
+.graph-section {
+    background: #CFE9F0;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.bar-graph {
+    width: 100%; /* Take full width of parent */
+    max-width: 100%; /* Prevent overflowing */
+    overflow: hidden; /* Hide anything that overflows */
+    height: 400px; /* You can adjust height as needed */
+    margin: auto; /* Center align if needed */
+}
+#chart {
+    width: 100%; /* Make chart responsive */
+    height: 100%; /* Fit height of container */
+}
+
+/* Small Graphs Section */
+.small-graphs {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.small-graph {
+    background: #CFE9F0;
+    flex: 1;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.pie-chart img {
+    max-width: 100%; /* Prevent overflow */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove extra spacing */
+    margin: 0 auto; /* Center it */
+    width: 400px; /* Optional fixed width if you want consistent size */
+}
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Pagination Buttons */
+#pagination {
+    position: relative; /* Relative to the table container */
+    text-align: center; /* Center the buttons */
+    margin-top: 20px; /* Add spacing between the table and buttons */
+    padding: 10px 0; /* Add padding for better spacing */
+    background: #f9f9f9; /* Optional: Add a background to separate it visually */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+    border-radius: 8px; /* Add rounded corners */
+}
+
+#pagination button {
+    padding: 10px 15px;
+    background: #2196F3; /* Primary color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s ease-in-out;
+    margin: 0 5px; /* Add spacing between buttons */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#pagination button:hover {
+    background: #1976D2; /* Darker shade on hover */
+    transform: scale(1.1); /* Slight zoom effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+}
+
+#pagination button:disabled {
+    background: #B0BEC5; /* Disabled button color */
+    cursor: not-allowed;
+    transform: none; /* Remove hover effects */
+    box-shadow: none;
+}
+
+#pagination span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 10px;
+}
+
+/* Dark Mode Styles for Pagination */
+body.dark-mode #pagination {
+    background: #28383f;
+}
+
+body.dark-mode #pagination button {
+    background: #6c95a8;
+    color: #ffffff;
+}
+
+body.dark-mode #pagination button:hover {
+    background: #7b7a7a;
+}
+
+body.dark-mode #pagination span {
+    color: #ffffff;
+}
+.filter-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns selection to right */
+    padding: 20px;
+    gap: 10px; /* Space between dropdowns */
+}
+
+select {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    background: white;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    top: 100%; /* Moves it below the icon */
+    left: auto; /* Reset left positioning */
+    right: 0; /* Align the right edge of the dropdown with the left edge of the button */
+    transform: translateX(-100%); /* Shift the dropdown fully to the left */
+    z-index: 10;
+    width: max-content; /* Ensures dropdown width adjusts to content */
+}
+
+
+.filter-dropdown select,
+.filter-dropdown button {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.filter-dropdown button {
+    background-color: blue;
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.Anchorbtn{
+    text-decoration: none;
+    color: white;
+}
+#insights-btn1{
+    background-color: #f44336;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.2s ease-in-out;
+}
+/* Responsive */
+@media (max-width: 768px) {
+    .small-graphs {
+        flex-direction: column;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+}
+
+/* Mobile Optimization */
+@media screen and (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .main-content {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Edit{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}" />
+{% endblock %}
+
+{% block content %}
+<!-- Your dashboard edit specific content here -->
+    <!-- STATS SECTION -->
+    <section class="stats">
+      <div class="box green" id="total-spent">
+          Total Spent &#128184; <!-- 💸 -->
+          <div>₹:<span id="total-spent-value">0</span></div>
+      </div>
+      <div class="box pink" id="expense-count">
+          Expense Count &#128202; <!-- 📊 -->
+          <div><span id="expense-count-value">0</span></div>
+      </div>
+      <div class="box blue" id="Last-7day-Spent">
+          Last 7 Days &#128197;
+          <div>₹:<span id="last-7days-spent-value">0</span></div>
+      </div>
+      <div class="box gray" id="highest-category">
+          Top Category &#127942;
+          <div><span id="highest-category-value">N/A</span></div>
+      </div>
+      <div class="box orange" id="highest-amount">
+          Max Spend &#128221;
+          <div>₹:<span id="highest-amount-value">0</span></div>
+      </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <section class="main-content">
+      <!-- EXPENSE LIST -->
+      <section class="expense-list">
+          <div class="expense-list-header">
+              <h2 style="text-align: center; flex: 1;">Expense List</h2>
+              <button id="add-expense-btn" class="hover-effect">Add Expense</button>
+          </div>
+          <div class="filter">
+              <label>From: <input type="date" id="from-date" class="small-input" name="from-date" /></label>
+              <label>To: <input type="date" id="to-date" class="small-input" name="to-date" /></label>
+              <button id="filter-btn" class="hover-effect">&#128269;</button> <!-- 🔍 Magnifying Glass -->
+              <button id="refresh-btn" class="hover-effect">&#8635;</button> <!-- ↻ Clockwise Open Circle Arrow -->
+          </div>
+          <table>
+              <thead>
+                  <tr>
+                      <th>Name</th>
+                      <th>Date</th>
+                      <th>Category</th>
+                      <th>Description</th>
+                      <th>Amount(₹)</th>
+                      <th>Edit/Delete</th>
+                      <th>Uploaded File</th>
+                  </tr>
+              </thead>
+              <tbody id="expense-table-body">
+                  <!-- Data dynamically added here -->
+
+              </tbody>
+          </table>
+          <div id="expense-pagination-controls" class="pagination-controls center">
+            <!-- Pagination buttons will be dynamically added here -->
+        </div>
+      </section>
+
+      <!-- ADD EXPENSE FORM POPUP -->
+      <div id="add-expense-popup" class="popup">
+          <div class="popup-content" >
+              <button id="close-popup-btn" class="close-btn">X</button>
+              <h2 style="text-align: center; flex: 1;">Add Expense</h2>
+              <form id="expense-form">
+                  <input type="hidden" id="expense-id" name="expense-id" />
+                  <label>Name: <input type="text" id="name" name="name" required /></label>
+                  <label>
+                      Category:
+                      <select id="category" name="category" required>
+                          <option value="">Select</option>
+                          <option value="Food&#127829;">Food &#127829; <!-- 🍕 --></option>
+                          <option value="Transport&#128642;">Transport &#128642; <!-- 🚂 --></option>
+                          <option value="Bills&#128184;">Bills &#128184; <!-- 💸 --></option>
+                          <option value="Entertainment&#129313;">Entertainment &#129313; <!-- 🤡 --></option>
+                          <option value="Shopping&#128092;">Shopping &#128092; <!-- 🛍️ --></option>
+                          <option value="Therapy&#129658;">Therapy &#129658; <!-- 🩺 --></option>
+                          <option value="Others">Others</option>
+                      </select>
+                  </label>
+                  <label>
+                      Category Description: <input type="text" id="category-desc" name="category-desc" />
+                  </label>
+                  <label>Date: <input type="date" id="date" name="date" required /></label>
+                  <label>Amount(₹): <input type="number" id="amount" name="amount" min="1" required /></label>
+                  <label>Description: <textarea id="description" name="description"></textarea></label>
+                  <label for="file-upload" id="file-upload-label" class="file-upload-label">Upload File📤</label>
+                  <input type="file" id="file-upload" name="file-upload" accept=".jpg,.png,.pdf,.jpeg,.doc,.docx,.xlsx" />
+                  <button type="submit" class="hover-effect">SUBMIT</button>
+              </form>
+          </div>
+      </div>
+
+      <!-- BUDGET LIST -->
+      <section class="budget-list">
+          <div class="budget-list-header">
+              <h2 style="text-align: center; flex: 1;">Budget List</h2>
+              <button id="set-budget-btn" class="hover-effect">Set Budget</button>
+          </div>
+          <table>
+              <thead>
+                  <tr>
+                      <th>Year</th>
+                      <th>Month</th>
+                      <th>Category</th>
+                      <th>Budget Amount(₹)</th>
+                      <th>Edit/Delete</th>
+                      <th>Recurring</th>
+                  </tr>
+              </thead>
+              <tbody id="budget-table-body">
+                  <!-- Data dynamically added here -->
+                  
+              </tbody>
+          </table>
+        <div id="budget-pagination-controls" class="pagination-controls center">
+            <!-- Pagination buttons will be dynamically added here -->
+        </div>
+      </section>
+  </section>
+
+  <!-- BUDGET FORM POPUP -->
+  <div id="budget-popup" class="popup">
+      <div class="popup-content" >
+          <button id="close-budget-popup-btn" class="close-btn">X</button>
+          <h2 style="text-align: center; flex: 1;">Set Budget</h2>
+          <form id="budget-form">
+              <input type="hidden" id="budget-id" name="budget-id" />
+              <!-- Set Year and Month Section -->
+              <div id="set-period-section">
+                  <label>Year:
+                      <select id="year-select" name="year" required>
+                          <option value="">Select Year</option>
+                          <!-- Options populated by JavaScript -->
+                      </select>
+                  </label>
+                  <label>Month:
+                      <select id="month-select" name="month" required>
+                          <option value="">Select Month</option>
+                          <option value="1">January</option>
+                          <option value="2">February</option>
+                          <option value="3">March</option>
+                          <option value="4">April</option>
+                          <option value="5">May</option>
+                          <option value="6">June</option>
+                          <option value="7">July</option>
+                          <option value="8">August</option>
+                          <option value="9">September</option>
+                          <option value="10">October</option>
+                          <option value="11">November</option>
+                          <option value="12">December</option>
+                      </select>
+                  </label>
+                  <button type="button" id="set-budget-period-btn" class="hover-effect">Set Period</button>
+              </div>
+              
+              <!-- Set Budget Category and Amount Section -->
+              <div id="set-category-amount-section" style="display: none;">
+                  <fieldset>
+                      <legend>Category:</legend>
+                      <label class="option">
+                          <input type="radio" name="budget-category" value="Food&#127829;">
+                          Food &#127829; <!-- 🍕 -->
+                      </label>
+                      <label class="option">
+                          <input type="radio" name="budget-category" value="Transport&#128642;">
+                          Transport &#128642; <!-- 🚂 -->
+                      </label>
+                      <label class="option">
+                          <input type="radio" name="budget-category" value="Bills&#128184;">
+                          Bills &#128184; <!-- 💸 -->
+                      </label>
+                      <label class="option">
+                          <input type="radio" name="budget-category" value="Entertainment&#129313;">
+                          Entertainment &#129313; <!-- 🤡 -->
+                      </label>
+                      <label class="option">
+                          <input type="radio" name="budget-category" value="Shopping&#128092;">
+                          Shopping &#128092; <!-- 🛍️ -->
+                      </label>
+                      <label class="option">
+                          <input type="radio" name="budget-category" value="Therapy&#129658;">
+                          Therapy &#129658; <!-- 🩺 -->
+                      </label>
+                      <label class="option">
+                          <input type="radio" name="budget-category" value="Others">
+                          Others
+                      </label>
+                  </fieldset>
+                  <label for="budget-amount">Amount(₹):
+                      <input type="number" id="budget-amount" name="budget-amount" required min="1" />
+                  </label>
+                  <button type="submit" class="hover-effect">Save Budget</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+{% endblock %}
+
+{% block graphs %}
+<div class="container">
+  <h1>My Expenses</h1>
+  
+  <div class="chart-container">
+      <div class="graph">
+          <h3>Monthly Expenses</h3>
+          <img style="margin-top: 40px;" src="data:image/png;base64,{{ monthly_plot }}" alt="Monthly Expenses Graph">
+      </div>
+      
+      <div class="graph">
+          <h3>Filter Expenses by Category</h3>
+          <div class="filter-container">
+              <select id="year" onchange="updateCategoryPlot() ">
+                  <option value="2024" {% if default_year == 2024 %}selected{% endif %}>2024</option>
+                  <option value="2025" {% if default_year == 2025 %}selected{% endif %}>2025</option>
+              </select>
+
+              <select id="month" onchange="updateCategoryPlot()">
+                  {% for i in range(1, 13) %}
+                      <option value="{{ i }}" {% if default_month == i %}selected{% endif %}>
+                          {{ ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][i-1] }}
+                      </option>
+                  {% endfor %}
+              </select>
+          </div>
+          <img id="categoryChart" src="data:image/png;base64,{{ category_plot }}" alt="Category-wise Expenses Graph">
+      </div>
+  </div>
+      <div class = "container2">
+          <h1>Family Expenses</h1>
+          <div class="filter-container">
+              <select id="pieUser">
+                  {% for user in users %}
+                      <option value="{{ user }}" {% if user == default_user %}selected{% endif %}>
+                          {{ user }}
+                      </option>
+                  {% endfor %}
+              </select>
+          
+              <select id="pieYear">
+                  <option value="2024" {% if default_year == 2024 %}selected{% endif %}>2024</option>
+                  <option value="2025" {% if default_year == 2025 %}selected{% endif %}>2025</option>
+              </select>
+          
+              <select id="pieMonth">
+                  {% for i in range(1, 13) %}
+                      <option value="{{ i }}" {% if default_month == i %}selected{% endif %}>
+                          {{ ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][i-1] }}
+                      </option>
+                  {% endfor %}
+              </select>
+          
+              <button onclick="updateCharts()">Apply Filters</button>
+          </div>
+          <div class="chart-container2">
+          <div class="graph">
+              <h3>Budget vs Expenses</h3>          
+              <img id="pieChart" src="data:image/png;base64,{{ pie_chart }}" alt="Budget vs Expenses Pie Chart">
+          </div>
+          <div class="graph">
+              <h3>Spending Progress by Category</h3>
+              <img id="barChart" src="data:image/png;base64,{{ bar_chart }}" alt="Spending Progress Chart">
+          </div>
+          <div class="graph">
+              <h3>Family Member's Expenses By Category</h3>
+              <img id="stackedBarChart" src="data:image/png;base64,{{ stacked_bar_chart }}" alt="Stacked Bar Chart">
+          </div>                             
+          <div class="graph">
+              <h3>Budget vs. Expense (Line Chart)</h3>
+              <img id="lineChart" src="data:image/png;base64,{{ line_chart }}" alt="Budget vs. Expense Line Chart">
+          </div>
+          
+      </div>
+  </div>
+  {% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
+<script>
+function updateCategoryPlot() {
+        const year = document.getElementById("year").value;
+        const month = document.getElementById("month").value;
+    
+        fetch(`/plot/category_data/${year}/${month}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.no_data) {
+                    alert("Insufficient data available for the selected month and year.");
+                } else {
+                    document.getElementById("categoryChart").src = "data:image/png;base64," + data.category_plot;
+                }
+            })
+            .catch(error => console.error("Error updating chart:", error));
+    }
+    
+    async function updateLineChart(user, year) {
+    try {
+        const response = await fetch(`/plot/line_chart/${year}?user=${encodeURIComponent(user)}`);
+        const data = await response.json();
+        document.getElementById("lineChart").src = "data:image/png;base64," + data.line_chart;
+    } catch (error) {
+        console.error("Error updating line chart:", error);
+    }
+}
+    
+    document.addEventListener("DOMContentLoaded", function () {
+        updateCharts();  // Load default charts when page loads
+    });
+
+    async function updateCharts() {
+    const user = document.getElementById("pieUser").value;
+    const year = document.getElementById("pieYear").value;
+    const month = document.getElementById("pieMonth").value;
+
+    try {
+        let noData = false;
+
+        // Update Pie Chart
+        const pieResponse = await fetch(`/plot/pie_chart/${year}/${month}?user=${encodeURIComponent(user)}`);
+        const pieData = await pieResponse.json();
+        if (pieData.no_data) noData = true;
+        else document.getElementById("pieChart").src = "data:image/png;base64," + pieData.pie_chart;
+
+        // Update Bar Chart
+        const barResponse = await fetch(`/plot/bar_chart/${year}/${month}?user=${encodeURIComponent(user)}`);
+        const barData = await barResponse.json();
+        if (barData.no_data) noData = true;
+        else document.getElementById("barChart").src = "data:image/png;base64," + barData.bar_chart;
+
+        // Update Stacked Bar Chart
+        const stackedResponse = await fetch(`/plot/stacked_bar_chart/${year}/${month}`);
+        const stackedData = await stackedResponse.json();
+        if (stackedData.no_data) noData = true;
+        else document.getElementById("stackedBarChart").src = "data:image/png;base64," + stackedData.stacked_bar_chart;
+
+        // Update Line Chart with the selected year and user
+        await updateLineChart(user, year);  // Pass user and year to updateLineChart
+
+        if (noData) {
+            alert("Insufficient data available for the selected month and year.");
+        }
+
+    } catch (error) {
+        console.error("Error updating charts:", error);
+    }
+}
+</script>
+{% endblock %}

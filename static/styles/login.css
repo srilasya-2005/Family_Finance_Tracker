@@ -1,0 +1,221 @@
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    position: relative;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.login-section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px;
+    z-index: 1;
+}
+
+.login-form {
+    flex-direction: column;
+    gap: 20px;
+    min-width: 300px;
+    margin-right: 15%;
+}
+
+/* Updated text colors to black */
+.login-form h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #000;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.welcome-text {
+    color: #000;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 5%;
+}
+
+.form-group label {
+    color: #000;
+    font-size: 16px;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.form-group input {
+    padding: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.form-group input:focus {
+    background: rgba(255, 255, 255, 0.95);
+    outline: none;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.password-container input {
+    padding: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.forgot-password {
+    color: #000;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.forgot-password::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: #000;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease;
+}
+
+.forgot-password:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+.login-button {
+    padding: 12px;
+    background: rgba(173, 216, 230, 0.6);
+    border: none;
+    border-radius: 4px;
+    color: #000;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.login-button:hover {
+    background: rgba(173, 216, 230, 0.8);
+}
+
+.signup-link {
+    text-align: center;
+    color: #000;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.signup-link a {
+    color: #47ebf7;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .login-section {
+        justify-content: center;
+    }
+    
+    .login-form {
+        margin-right: 0;
+    }
+}
+/* Header */
+.header {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 15px 0;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.footer {
+    background: none;
+    color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 2;
+}
+
+.footer p {
+    margin: 0;
+    font-size: 10px;
+}

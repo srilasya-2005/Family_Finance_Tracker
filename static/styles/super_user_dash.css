@@ -1,0 +1,324 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    /* Replace gradient with background image */
+    background-image: url("https://i.pinimg.com/736x/0f/36/0d/0f360ddce24b6e639fe10aef6199d2b6.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Header Styles */
+.header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Dashboard Button Styles */
+.dashboard-btn {
+    background-color: #26a6c9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.dashboard-btn:hover {
+    background-color: #1c8aab;
+}
+        
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+    color: black; /* Changed to black */
+    text-shadow: 1px 1px 3px rgba(255,255,255,0.7); /* Light shadow for readability */
+}
+
+h2 {
+    text-align: center;
+    margin: 30px 0 20px;
+    font-size: 2rem;
+    color: black; /* Changed to black */
+    text-shadow: 1px 1px 3px rgba(255,255,255,0.7); /* Light shadow for readability */
+}
+
+.card {
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Enhanced shadow for contrast against image */
+    margin-bottom: 30px;
+}
+
+.create-account {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-area {
+    flex: 1;
+    min-width: 300px;
+}
+
+.image-area {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"]
+ {
+    width: 95%;
+    padding: 15px;
+    border: none;
+    background-color: #a5e7f5;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Password field wrapper for toggle button */
+.password-field-wrapper {
+    position: relative;
+    width: 100%; /* Ensure the wrapper takes full width */
+}
+
+button {
+    background-color: #26a6c9;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 95%;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #1c8aab;
+}
+
+/* Enhanced table container with scrollbar */
+.table-container {
+    max-height: 400px; /* Increased height */
+    overflow-y: auto;
+    margin-top: 20px;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #f8f8f8;
+    padding: 15px;
+    text-align: left;
+    font-size: 1.1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: white;
+}
+
+td {
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+/* Ensure consistent column widths */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Ensures columns have fixed widths */
+}
+
+.user-table th,
+.user-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* Define column widths */
+.user-table th:nth-child(1),
+.user-table td:nth-child(1) {
+    width: 15%; /* UserName */
+}
+
+.user-table th:nth-child(2),
+.user-table td:nth-child(2) {
+    width: 20%; /* User Email */
+}
+
+.user-table th:nth-child(2),
+.user-table td:nth-child(2) {
+    width: 25%; /* Phone */
+}
+
+.user-table th:nth-child(3),
+.user-table td:nth-child(3) {
+    width: 20%; /* Privilege */
+}
+
+.user-table th:nth-child(4),
+.user-table td:nth-child(4) {
+    width: 25%; /* Approve/Disapprove */
+}
+
+/* Scrollable table body */
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Scrollbar styling */
+.table-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #a5e7f5;
+    border-radius: 5px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #26a6c9;
+}
+
+
+/* Enhanced custom scrollbar styling */
+.table-container::-webkit-scrollbar {
+    width: 12px; /* Slightly wider for better visibility */
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #a5e7f5;
+    border-radius: 5px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #26a6c9;
+}
+
+.approval-option {
+    display: flex;
+    gap: 5px; /* Adjust spacing between checkbox and label */
+}
+
+.approval-option input[type="checkbox"] {
+    width: 16px;
+    height: 12px;
+    cursor: pointer;
+}
+
+.approval-option label {
+    cursor: pointer;
+    font-size: 14px;
+}
+
+
+/* Empty table indicator */
+.empty-table-message {
+    padding: 30px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+.footer {
+    display: flex;
+    justify-content: center;
+}
+
+.logout-btn {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+/* Flash message styling */
+.alert {
+padding: 10px;
+margin-bottom: 20px;
+border-radius: 4px;
+text-align: center;
+width: 95%;
+}
+
+.alert-success {
+background-color: #d4edda;
+color: #155724;
+}
+
+.alert-error {
+background-color: #f8d7da;
+color: #721c24;
+}
+
+.alert-warning {
+background-color: #fff3cd;
+color: #856404;
+}

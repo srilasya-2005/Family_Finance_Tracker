@@ -1,0 +1,152 @@
+body {
+    font-family: Arial, sans-serif;
+    /* Background image setup - just uncomment and add your image path */
+    background-image: url('https://i.pinimg.com/736x/d7/7b/fd/d77bfdbac1e7fc39531ab34a27b218f4.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    /* Fallback color in case image doesn't load */
+    background-color: #a1c4fd;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.form-container {
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    /* Added slight transparency to show background */
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+}
+
+.form-row {
+    display: flex;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.form-row label {
+    flex: 0 0 150px;
+    font-weight: bold;
+}
+
+.form-row .input-container {
+    flex: 1;
+    position: relative;
+}
+
+.form-row input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #a1c4fd;
+    border-radius: 5px;
+    background-color: rgba(161, 196, 253, 0.2);
+    box-sizing: border-box;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #a1c4fd;
+    border-radius: 5px;
+    background-color: rgba(161, 196, 253, 0.2);
+    box-sizing: border-box;
+    height: 100px;
+    resize: none;
+    overflow: auto;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.password-toggle svg {
+    width: 24px;
+    height: 24px;
+    fill: #333;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.submit-btn {
+    display: block;
+    width: 60%;
+    margin: 30px auto 0;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.password-strength {
+    height: 5px;
+    margin-top: 5px;
+    background-color: #eee;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.password-strength-meter {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s;
+}
+
+/* Flash message styling */
+.alert {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.weak { background-color: #ff4d4d; width: 33%; }
+.medium { background-color: #ffd700; width: 66%; }
+.strong { background-color: #2ecc71; width: 100%; }
+
+.error { border: 1px solid red !important; }
