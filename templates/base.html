@@ -9,6 +9,7 @@
 <body>
 
     <header>
+        <img src="{{ url_for('static', filename='image.jpg') }}" alt="Logo" style="height: 60px; width: 60px; border-radius: 10px; margin-right: 20px; margin-left: -10px;">
         <h1 class="small-header">FAMILY FINANCE TRACKER</h1>
         <nav>
             {% if is_super_user %}

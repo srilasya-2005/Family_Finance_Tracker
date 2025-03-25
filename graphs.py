@@ -35,8 +35,8 @@ def create_bar_chart():
         for j in range(1, family_members):
             plt.plot([bar_x, bar_x + bar_width], [j, j], color='black', linestyle='--')
 
-        plt.text(bar_x + bar_width / 2, family_members + 0.2, f'₹{bills[i]:,}', 
-                 ha='center', fontsize=10, color='black')
+        # plt.text(bar_x + bar_width / 2, family_members + 0.2, f'₹{bills[i]:,}', 
+        #          ha='center', fontsize=10, color='black')
         
     plt.tight_layout()
     img_buffer = io.BytesIO()

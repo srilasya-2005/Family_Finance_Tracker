@@ -9,6 +9,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <img src="{{ url_for('static', filename='image.jpg') }}" alt="Logo" style="height: 70px; width: 70px; border-radius: 10px; margin-right: 5px; margin-left: -70px;">
             <h1>SUPER USER DASHBOARD</h1>
             <a href="{{ url_for('dashboard') }}" class="dashboard-btn">Dashboard →</a>
         </div>
