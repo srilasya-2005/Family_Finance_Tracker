@@ -1,19 +1,24 @@
 body {
     font-family: Arial, sans-serif;
-    /* Background image setup - just uncomment and add your image path */
     background-image: url('https://i.pinimg.com/736x/d7/7b/fd/d77bfdbac1e7fc39531ab34a27b218f4.jpg');
     background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     background-attachment: fixed;
-    /* Fallback color in case image doesn't load */
-    background-color: #a1c4fd;
+    position: relative;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-y: auto;
+}
+
+
+/* Header */
+.header {
+   
     align-items: center;
-    min-height: 100vh;
+    background: #45b0e6; /* Blue Grey 500 */
+    color: #fff;
+    padding: 1px;
+    margin-bottom: 10px;
 }
 
 .form-container {
@@ -25,6 +30,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     /* Added slight transparency to show background */
     background-color: rgba(255, 255, 255, 0.95);
+    margin: auto; /* Centers form horizontally */
 }
 
 h1 {
@@ -98,7 +104,7 @@ textarea {
     display: block;
     width: 60%;
     margin: 30px auto 0;
-    padding: 12px;
+    padding: 6px;
     background-color: #3498db;
     color: white;
     border: none;
@@ -144,6 +150,20 @@ textarea {
     background-color: #fff3cd;
     color: #856404;
 }
+
+
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.footer p {
+    font-size: 15px;
+    margin-top: 30px;
+}
+
 
 .weak { background-color: #ff4d4d; width: 33%; }
 .medium { background-color: #ffd700; width: 66%; }

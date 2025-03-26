@@ -478,3 +478,8 @@ window.addEventListener("load", function() {
     populateYearSelect();
     initializeDateFilters(); // Initialize date filters to last 7 days
 });
+
+document.getElementById("dark-mode-toggle").addEventListener("click", function() {
+    document.body.classList.toggle("dark-mode");
+  });
+  

@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin_dash.css') }}">
 </head>
 <body>
+    <div class="header">
+        <h1>Unified Family Finance Tracker</h1>
+    </div>
+    
     <h1>ADMIN DASHBOARD</h1>
     
     <div class="dashboard-container">
@@ -82,10 +86,6 @@
                 </table>
             </div>
         </div>
-    </div>
-    
-    <div class="footer">
-        <a href="{{ url_for('logout') }}" class="logout-btn">LOGOUT</a>
         <div class="navigation">
             {% if users.has_prev %}
                 <a href="{{ url_for('admin_dashboard', page=users.prev_num) }}" class="nav-btn">←</a>
@@ -120,10 +120,13 @@
             </tr>
             {% endfor %}
         </table>
-
         <!-- Family Bar Chart -->
         <img src="data:image/png;base64,{{ img_data }}" alt="Family Bar Chart">
+    </div>
 
+    <div class="footer">
+        <a href="{{ url_for('logout') }}" class="logout-btn">LOGOUT</a>
+        <p>&copy; 2025 Unified Family Finance Tracker. All rights reserved.</p>
     </div>
 </body>
 </html>

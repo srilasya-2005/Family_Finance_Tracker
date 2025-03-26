@@ -11,8 +11,6 @@ body {
     background-size: cover;
     background-position: center;
     min-height: 100vh;
-    padding: 20px;
-    display: flex;
     flex-direction: column;
     align-items: center;
 }
@@ -22,6 +20,7 @@ h1 {
     margin: 20px 0;
     font-size: 28px;
     font-weight: bold;
+    text-align: center;
 }
 
 /* Dashboard Container */
@@ -32,6 +31,8 @@ h1 {
     max-width: 1200px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    margin-bottom: 5%;
 }
 
 /* Welcome Section */
@@ -161,14 +162,6 @@ h1 {
     scrollbar-color: #888 #f1f1f1;
 }
 
-/* Footer Styles */
-.footer {
-    display: flex;
-    justify-content: space-between;
-    width: 95%;
-    max-width: 1200px;
-    margin-top: 20px;
-}
 
 .logout-btn {
     background-color: #ff0000;
@@ -179,12 +172,13 @@ h1 {
     cursor: pointer;
     text-transform: uppercase;
     text-decoration: none;
+    
 }
 
 .navigation {
     display: flex;
-    gap: 10px;
-    
+    justify-content: flex-end;
+    gap: 10px;    
 }
 
 .navigation a{
@@ -195,7 +189,7 @@ h1 {
     background-color: transparent;
     border: none;
     cursor: pointer;
-    font-size: 24px;
+    font-size: 30px;
 }
 
 /* Flash message styling */
@@ -222,14 +216,15 @@ h1 {
 }
 
 .container {
-    background-color: rgba(133, 236, 245, 0.95);
+    background-color: skyblue;
     border-radius: 20px;
     width: 95%;
     max-width: 1000px;
     padding: 20px;
-    margin-top: 30px;
+    margin: 30px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     text-align: center;
+    margin: auto;
 }
 
 #searchBar {
@@ -265,4 +260,31 @@ h1 {
     margin-top: 20px;
     width: 100%;
     border-radius: 15px;
+}
+
+/* Header */
+.header {
+    align-items: center;                    /* ⚠️ Needs display: flex or grid */
+    background: #8cd6fb;                    /* Background color set */
+    color: #fff;
+    padding: 1px;
+    transition: background-color 0.3s ease-in-out;
+    position: relative;                     /* Correct for z-index to apply */
+    z-index: 3; 
+}
+
+.footer {
+    background: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding: 10px;
+    bottom: 0;
+    width: 100%;
+    z-index: 2;
+    margin-top: 20px;
+}
+
+.footer p {
+    font-size: 15px;
+    margin-top: 25px;
 }

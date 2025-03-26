@@ -49,6 +49,7 @@ def generate_otp():
 
 # Function to send OTP
 def send_otp(email, otp):
+    print(f"Sending OTP to {email}: {otp}")
     msg = Message("Your OTP for Unified Family Finance Tracker", sender="your_email@gmail.com", recipients=[email])
     msg.body = f"""
                 Dear User,
@@ -229,7 +230,7 @@ def admin_dashboard():
         user_count = User.query.filter_by(family_name=name).count()
 
         # Default cost per member
-        default_cost_per_member = 1500
+        default_cost_per_member = 500
 
         # Check if family already exists
         existing_family = Family.query.filter_by(name=name).first()

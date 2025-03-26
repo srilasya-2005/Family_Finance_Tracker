@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/super_user_dash.css') }}">
 </head>
 <body>
+    <div class="head-title">
+        <h1>Unified Family Finance Tracker</h1>
+    </div>
     <div class="container">
         <div class="header">
             <img src="{{ url_for('static', filename='image.jpg') }}" alt="Logo" style="height: 70px; width: 70px; border-radius: 10px; margin-right: 5px; margin-left: -70px;">
@@ -125,9 +128,10 @@
             </div>
         </div>
     </div>
+    
     <div class="footer">
         <a href="{{ url_for('logout') }}" class="logout-btn">LOGOUT</a>
-        
+            <p>&copy; 2025 Unified Family Finance Tracker. All rights reserved.</p>
     </div>
 
 </body>

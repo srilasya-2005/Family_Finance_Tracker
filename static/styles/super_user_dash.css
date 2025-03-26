@@ -14,7 +14,7 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     min-height: 100vh;
-    padding: 20px;
+    
 }
 
 /* Header Styles */
@@ -284,21 +284,7 @@ td {
     color: #888;
     font-style: italic;
 }
-.footer {
-    display: flex;
-    justify-content: center;
-}
 
-.logout-btn {
-    background-color: #ff0000;
-    color: white;
-    border: none;
-    padding: 10px 25px;
-    font-size: 16px;
-    cursor: pointer;
-    text-transform: uppercase;
-    text-decoration: none;
-}
 /* Flash message styling */
 .alert {
 padding: 10px;
@@ -321,4 +307,43 @@ color: #721c24;
 .alert-warning {
 background-color: #fff3cd;
 color: #856404;
+}
+
+/* Header */
+.head-title {
+
+text-align: center;                    
+background: #8cd6fb;                    
+color: #fff;
+transition: background-color 0.3s ease-in-out;
+margin-bottom: 20px;
+padding: 2px;
+}
+
+.footer {
+background: none;
+color: rgb(0, 0, 0);
+text-align: center;
+padding: 10px;
+bottom: 0;
+width: 100%;
+z-index: 2;
+margin-top: 20px;
+}
+
+.footer p {
+font-size: 15px;
+margin-top: 25px;
+}
+
+.logout-btn {
+background-color: #ff0000;
+color: white;
+border: none;
+padding: 10px 25px;
+font-size: 16px;
+cursor: pointer;
+text-transform: uppercase;
+text-decoration: none;
+
 }

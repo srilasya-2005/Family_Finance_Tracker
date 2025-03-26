@@ -24,6 +24,13 @@ header {
   transition: background-color 0.3s ease-in-out;
 }
 
+.logo {
+  background-color:  #007bff;; /* Your desired background color */
+  padding: 8px;
+  border-radius: 30px;
+}
+
+
 .super-user-button {
   color: #fff;
   background-color: #007bff;
@@ -63,7 +70,7 @@ header h1 {
 }
 .logout-btn {
   padding: 8px 15px;
-  background-color: #f44336;
+  background-color: #e74c3c;
   color: white !important;
   border: none;
   border-radius: 5px;
@@ -124,13 +131,21 @@ header h1 {
 .welcome-image:hover {
   transform: scale(1.05);
 }
+header {
+  display: flex;
+  justify-content: space-between; /* Ensures space between the left and right items */
+  align-items: center;
+  background: #45b0e6;
+  color: #fff;
+  padding: 20px;
+}
 
 /* NAVIGATION */
 nav {
   display: flex;
   gap: 15px;
-  flex: 2;
-  justify-content: center;
+  margin-left: auto; /* Optional: explicitly pushes nav to the right */
+  justify-content: flex-end;
 }
 nav button {
   padding: 10px 15px;

@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>{% block title %}Family Finance Tracker{% endblock %}</title>
     {% block styles %}{% endblock %}
 </head>
 <body>
-
     <header>
-        <img src="{{ url_for('static', filename='image.jpg') }}" alt="Logo" style="height: 60px; width: 60px; border-radius: 10px; margin-right: 20px; margin-left: -10px;">
         <h1 class="small-header">FAMILY FINANCE TRACKER</h1>
         <nav>
             {% if is_super_user %}
-            <button class="super-user-button" onclick="window.location.href='/super_user_dashboard'">Super User <br>Dashboard</button>
+            <button class="super-user-button" onclick="window.location.href='/super_user_dashboard'">Super User Dashboard</button>
             {% endif %}
-            <button id="budget-btn" class="hover-effect" style="color:black" onclick="window.location.href='/dashboard'">Expense & Budget <br>Management</button>
+            <button id="budget-btn" class="hover-effect" style="color:black" onclick="window.location.href='/dashboard'">Expense & Budget Management</button>
             <button id="insights-btn" class="hover-effect" style="color:black" onclick="window.location.href='/savings'">Savings Management</button>
             <button class="logout-btn" onclick="if(confirm('Are you sure you want to logout?')) window.location.href='/logout'">Logout</button>
             <button id="dark-mode-toggle">🌙</button>
@@ -34,9 +33,9 @@
             </div>
             <div class="welcome-images">
                 <!-- Replace with your image URLs -->
-                <img src="https://i.pinimg.com/736x/8e/90/80/8e9080b568929a595e9396ba8b23b04a.jpg" alt="Person analyzing data" class="welcome-image">
-                <img src="https://i.pinimg.com/736x/8e/90/80/8e9080b568929a595e9396ba8b23b04a.jpg" alt="Person analyzing data" class="welcome-image">
-                <img src="https://i.pinimg.com/736x/c1/85/a1/c185a134c6e32e2135afcb39d5b33b59.jpg" alt="Person with finances" class="welcome-image">
+                <img src="https://img.freepik.com/free-vector/breadwinner-abstract-concept-vector-illustration-earn-money-work-from-home-husband-businessman-working-father-mother-family-needs-support-freelance-work-homemaking-wife-abstract-metaphor_335657-1431.jpg?w=826&t=st=1702529779~exp=1702530379~hmac=cf3da2347cb4b2ba6e674020553645da1ce80c6d752973b6db79384a18de9356" alt="Person analyzing data" class="welcome-image">
+                <img src="https://static.vecteezy.com/system/resources/previews/012/732/181/non_2x/personal-income-and-expense-management-family-budget-strategy-and-planning-vector.jpg" alt="Person analyzing data" class="welcome-image">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/business-budget-4650416-3851413.png" alt="Person with finances" class="welcome-image">
             </div>
         </div>
 
@@ -53,9 +52,9 @@
                 <h3>About Family Finance Tracker</h3>
                 <p>A comprehensive solution for managing family finances, budgets, and expenses with advanced tracking and visualization tools.</p>
                 <div class="contact">
-                    <p><span>📞</span> +1 234 567 8900</p>
-                    <p><span>✉️</span> support@familyfinance.com</p>
-                    <p><span>🏢</span> 123 Finance Street, Money City, MC 12345</p>
+                    <p><span>📞</span> +91 9876543210</p>
+                    <p><span>✉️</span> unifiedfamilyfinancetracker1@gmail.com</p>
+                    <p><span>🏢</span> 123 Finance Street, Money City, India, 110001</p>
                 </div>
             </div>
             <div class="footer-section links">
@@ -71,10 +70,10 @@
             <div class="footer-section social">
                 <h3>Stay Connected</h3>
                 <div class="socials">
-                    <a href="#"><span>📱</span> Facebook</a>
-                    <a href="#"><span>📱</span> Twitter</a>
-                    <a href="#"><span>📱</span> LinkedIn</a>
-                    <a href="#"><span>📱</span> Instagram</a>
+                    <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+                    <a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
                 </div>
             </div>
         </div>
