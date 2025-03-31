@@ -106,6 +106,7 @@ document.getElementById("filter-btn").addEventListener("click", function() {
         return;
     }
     fetchExpenses(fromDate, toDate);
+    updateStats(fromDate, toDate); // Add this line to update stats when filtering
 });
 
 // Refresh expense list
@@ -118,7 +119,13 @@ document.getElementById("refresh-btn").addEventListener("click", function() {
 
 // Fetch and display budgets (READ only)
 async function fetchBudgets(page = 1) {
+    const month = document.getElementById('budget-month-select').value;
+    const year = document.getElementById('budget-year-select').value;
+    
     let url = `${API_URL}/get_budgets?page=${page}`;
+    if (month) url += `&month=${month}`;
+    if (year) url += `&year=${year}`;
+
     try {
         let response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch budgets");
@@ -171,6 +178,21 @@ async function fetchStats() {
     document.getElementById("highest-amount-value").textContent = stats.highest_amount.toFixed(2);
 }
 
+// Add this new function to update stats based on filtered expenses
+async function updateStats(fromDate, toDate) {
+    let url = `${API_URL}/get_stats`;
+    if (fromDate && toDate) {
+        url += `?from_date=${fromDate}&to_date=${toDate}`;
+    }
+    let response = await fetch(url);
+    let stats = await response.json();
+    document.getElementById("total-spent-value").textContent = stats.total_spent.toFixed(2);
+    document.getElementById("expense-count-value").textContent = stats.expense_count;
+    document.getElementById("last-7days-spent-value").textContent = stats.last_7days_spent.toFixed(2);
+    document.getElementById("highest-category-value").textContent = stats.highest_category;
+    document.getElementById("highest-amount-value").textContent = stats.highest_amount.toFixed(2);
+}
+
 // Initialize filters
 function initializeDateFilters() {
     const today = new Date();
@@ -184,11 +206,57 @@ function initializeDateFilters() {
     toDateInput.valueAsDate = today;
 }
 
+// Add this new function to handle all year dropdowns
+async function loadAllYearDropdowns() {
+    try {
+        const response = await fetch(`${API_URL}/get_budget_years`);
+        const data = await response.json();
+        const yearDropdowns = ['year', 'pieYear', 'budget-year-select'];
+        
+        yearDropdowns.forEach(dropdownId => {
+            const dropdown = document.getElementById(dropdownId);
+            if (dropdown) {
+                // Keep only the first option
+                const firstOption = dropdown.options[0];
+                dropdown.innerHTML = '';
+                dropdown.appendChild(firstOption);
+                
+                // Sort years in descending order
+                const sortedYears = data.years.sort((a, b) => b - a);
+                
+                sortedYears.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (year === new Date().getFullYear()) {
+                        option.selected = true;
+                    }
+                    dropdown.appendChild(option);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error loading years:', error);
+    }
+}
+
 // Initialize on page load
 window.addEventListener("load", function() {
     initializeDateFilters();
+    loadAllYearDropdowns();
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadAllYearDropdowns();
     fetchExpenses();
     fetchStats();
     fetchBudgets();
-
+    
+    // Add budget filter event listeners
+    document.getElementById('budget-filter-btn').addEventListener('click', () => fetchBudgets(1));
+    document.getElementById('budget-refresh-btn').addEventListener('click', () => {
+        document.getElementById('budget-month-select').value = '';
+        document.getElementById('budget-year-select').value = '';
+        fetchBudgets(1);
+    });
 });

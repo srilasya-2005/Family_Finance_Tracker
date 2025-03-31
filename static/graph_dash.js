@@ -5,39 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Current Year:", currentYear);
     console.log("Current Month:", currentMonth);
 
-    // Populate year dropdown
-    const yearDropdown = document.getElementById("year");
-    if (yearDropdown) {
-        for (let year = currentYear - 5; year <= currentYear + 5; year++) {
-            const option = document.createElement("option");
-            option.value = year;
-            option.textContent = year;
-            if (year === currentYear) {
-                option.selected = true; // Set current year as default
-            }
-            yearDropdown.appendChild(option);
-        }
-    } else {
-        console.error("Year dropdown element not found!");
-    }
-
-    // Populate month dropdown
-    const monthDropdown = document.getElementById("month");
-    if (monthDropdown) {
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        monthNames.forEach((monthName, index) => {
-            const option = document.createElement("option");
-            option.value = index + 1;
-            option.textContent = monthName;
-            if (index + 1 === currentMonth) {
-                option.selected = true; // Set current month as default
-            }
-            monthDropdown.appendChild(option);
-        });
-    } else {
-        console.error("Month dropdown element not found!");
-    }
-
     updateCategoryPlot();  // Load default category plot when page loads
     updateCharts();  // Load default charts when page loads
 });

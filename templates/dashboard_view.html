@@ -68,7 +68,29 @@
   <!-- BUDGET LIST -->
   <section class="budget-list">
     <div class="budget-list-header">
-      <h2 style="text-align: center; flex: 1;">Budget List</h2>
+      <h2 style="text-align: center; flex: 1; margin-left: 300px;">Budget List</h2>
+      <div class="budget-filter">
+        <select id="budget-month-select">
+          <option value="">MONTH</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+        <select id="budget-year-select">
+          <option value="">Select Year</option>
+        </select>
+        <button id="budget-filter-btn" class="hover-effect">&#128269;</button>
+        <button id="budget-refresh-btn" class="hover-effect">&#8635;</button>
+      </div>
     </div>
     <table>
       <thead>
@@ -105,10 +127,8 @@
       <div class="graph">
           <h3>Filter Expenses by Category</h3>
           <div class="filter-container">
-              <select id="year" onchange="updateCategoryPlot() ">
-                {% for year in range(current_year - 5, current_year + 6) %}
-                <option value="{{ year }}" {% if default_year == year %}selected{% endif %}>{{ year }}</option>
-                {% endfor %}
+              <select id="year" onchange="updateCategoryPlot()">
+                <option value="">Select Year</option>
               </select>
 
               <select id="month" onchange="updateCategoryPlot()">
@@ -125,17 +145,10 @@
       <div class = "container2">
           <h1>Family Expenses</h1>
           <div class="filter-container">
-              <select id="pieUser">
-                  {% for user in users %}
-                      <option value="{{ user }}" {% if user == default_user %}selected{% endif %}>
-                          {{ user }}
-                      </option>
-                  {% endfor %}
-              </select>
+            <input type="hidden" id="pieUser" value="{{ default_user }}">
           
               <select id="pieYear">
-                  <option value="2024" {% if default_year == 2024 %}selected{% endif %}>2024</option>
-                  <option value="2025" {% if default_year == 2025 %}selected{% endif %}>2025</option>
+                  <option value="">Select Year</option>
               </select>
           
               <select id="pieMonth">

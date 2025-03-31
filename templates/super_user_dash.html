@@ -4,17 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super User Dashboard</title>
+    <link rel="icon"  href="{{ url_for('static', filename='images/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/super_user_dash.css') }}">
 </head>
+
+<header>
+    <div class="header-content" style="display: flex; align-items: center;">
+        <!-- Logo and tagline container -->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <img class="logo" 
+               src="{{ url_for('static', filename='images/logo.png') }}" 
+               alt="Logo" 
+               style="height: 45px; width: 45px;" />
+          <span style="color: #e74c3c; font-size: 12px; font-weight: bold; margin-top: 4px; text-shadow: 1px 1px 2px #000;">
+            Track. Manage. Unify.
+          </span>
+        </div>
+        <!-- Main heading -->
+        <h1 style="font-size: 24px; margin: 0;">FAMILY FINANCE TRACKER</h1>
+      </div>
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="dashboard-btn">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </nav>
+</header>
+
 <body>
-    <div class="head-title">
-        <h1>Unified Family Finance Tracker</h1>
-    </div>
     <div class="container">
         <div class="header">
-            <img src="{{ url_for('static', filename='image.jpg') }}" alt="Logo" style="height: 70px; width: 70px; border-radius: 10px; margin-right: 5px; margin-left: -70px;">
-            <h1>SUPER USER DASHBOARD</h1>
-            <a href="{{ url_for('dashboard') }}" class="dashboard-btn">Dashboard →</a>
+            <h1 class="dashboard-title">SUPER USER DASHBOARD</h1>
         </div>
         
         <div class="card">
@@ -128,11 +146,42 @@
             </div>
         </div>
     </div>
-    
-    <div class="footer">
-        <a href="{{ url_for('logout') }}" class="logout-btn">LOGOUT</a>
-            <p>&copy; 2025 Unified Family Finance Tracker. All rights reserved.</p>
-    </div>
 
 </body>
+<footer class="footer-gradient">
+    <div class="footer-content">
+        <div class="footer-section about">
+            <h3>About Family Finance Tracker</h3>
+            <p>A comprehensive solution for managing family finances, budgets, and expenses with advanced tracking and visualization tools.</p>
+            <div class="contact">
+                <p><span>📞</span> +1 234 567 8900</p>
+                <p><span>✉️</span> support@familyfinance.com</p>
+                <p><span>🏢</span> 123 Finance Street, Money City, MC 12345</p>
+            </div>
+        </div>
+        <div class="footer-section links">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Help Center</a></li>
+            </ul>
+        </div>
+        <div class="footer-section social">
+            <h3>Stay Connected</h3>
+            <div class="socials">
+                <a href="#"><span>📱</span> Facebook</a>
+                <a href="#"><span>📱</span> Twitter</a>
+                <a href="#"><span>📱</span> LinkedIn</a>
+                <a href="#"><span>📱</span> Instagram</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Family Finance Tracker. All rights reserved.</p>
+        <p>Version 1.0.0 | Last Updated: April 2025</p>
+    </div>
+</footer>
 </html>

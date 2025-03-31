@@ -6,11 +6,29 @@
     <title>Admin Dashboard</title>
     <!-- Link to external CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin_dash.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 <body>
-    <div class="header">
-        <h1>Unified Family Finance Tracker</h1>
-    </div>
+    <header>
+        <div class="header-content" style="display: flex; align-items: center;">
+            <!-- Logo and tagline container -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <img class="logo" 
+                   src="{{ url_for('static', filename='images/logo.png') }}" 
+                   alt="Logo" 
+                   style="height: 45px; width: 45px;" />
+              <span style="color: #e74c3c; font-size: 12px; font-weight: bold; margin-top: 4px; text-shadow: 1px 1px 2px #000;">
+                Track. Manage. Unify.
+              </span>
+            </div>
+            <!-- Main heading -->
+            <h1 style="font-size: 28px; margin: 0;">FAMILY FINANCE TRACKER</h1>
+          </div>
+        <nav>
+            <a href="{{ url_for('logout') }}" class="logout-btn">LOGOUT</a>
+        </nav>
+    </header>
     
     <h1>ADMIN DASHBOARD</h1>
     
@@ -37,53 +55,53 @@
             <table class="user-table">
                 <thead>
                     <tr>
-                        <th>User Name</th>
-                        <th>Email</th>
-                        <th>Phone No</th>
-                        <th>Created By</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Action Taken</th>
+                        <th><i class="fas fa-user"></i> User Name</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-phone"></i> Phone No</th>
+                        <th><i class="fas fa-user-tag"></i> Role</th>
+                        <th><i class="fas fa-toggle-on"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Action Taken</th>
                     </tr>
                 </thead>
             </table>
             
-            <!-- Scrollable table body with visible scrollbar -->
             <div class="table-scrollable-body">
                 <table class="user-table" id="user-data-table">
                     <tbody>
                         {% for user in users %}
-                        <tr>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>{{ user.phone }}</td>
-                            <td>{{ user.created_on }}</td>
-                            <td>{{ user.role }}</td>
-                            <td>{{ user.status }}</td>
-                            <td>
-                                <form action="{{ url_for('update_approved_by') }}" method="POST">
-                                    <input type="hidden" name="user_id" value="{{ user.id }}">
-                                    <div class="approval-options">
-                                        <div class="approval-option">
-                                            <input type="checkbox" id="approve-{{ user.id }}" name="approve"
-                                                   onchange="this.form.submit()"
-                                                   {% if user.status == 'approved' %}checked{% endif %}>
-                                            <label for="approve-{{ user.id }}">
-                                                {% if user.status == 'pending' %}
-                                                    Disapprove
-                                                {% else %}
-                                                    Approve
-                                                {% endif %}
-                                            </label>
+                            {% if user.role == 'super_user' %} <!-- ✅ Only super users -->
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone }}</td>
+                                <td>{{ user.role }}</td>
+                                <td>{{ user.status }}</td>
+                                <td>
+                                    <form action="{{ url_for('update_approved_by') }}" method="POST">
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <div class="approval-options">
+                                            <div class="approval-option">
+                                                <input type="checkbox" id="approve-{{ user.id }}" name="approve"
+                                                       onchange="this.form.submit()"
+                                                       {% if user.status == 'approved' %}checked{% endif %}>
+                                                <label for="approve-{{ user.id }}">
+                                                    {% if user.status == 'pending' %}
+                                                        Disapprove
+                                                    {% else %}
+                                                        Approve
+                                                    {% endif %}
+                                                </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endif %}
                         {% endfor %}
-                      
                     </tbody>
                 </table>
+            </div>
+            
             </div>
         </div>
         <div class="navigation">
@@ -96,64 +114,54 @@
         </div>
     </div>
 
-    <div class="container">
-        <h1> Family Monthly Bills List</h1>
+    <div class="container bills-section">
+        <h1> Families  Overview</h1>
+        <div class="bills-container">
+            <h2>📊 Monthly Bills Summary</h2>
+            <input type="text" id="searchBar" onkeyup="searchFamily()" placeholder="Search Family Name...">
+            <table class="bills-table" id="bills-table">
+                <thead>
+                    <tr>
+                        <th>🏠 Family Name</th>
+                        <th>👨‍👩‍👧‍👦 Members Count</th>
+                        <th>💰 Cost per Member</th>
+                        <th>🧾 Monthly Bill</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for family in families %}
+                    <tr>
+                        <td>{{ family.name }}</td>
+                        <td>{{ family.count }}</td>
+                        <td class="cost">₹{{ family.cost_per_member }}</td>
+                        <td class="cost">₹{{ family.monthly_bill }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>        
+        <div class="graph-container">
+            <!-- Family Size Chart -->
 
-        <!-- Family Search Bar -->
-        <input type="text" id="searchBar" onkeyup="searchFamily()" placeholder="Search Family Name...">
-
-        <!-- Family Bills Table -->
-        <table id="familyTable">
-            <tr>
-                <th>Family Name</th>
-                <th>Members</th>
-                <th>Cost per Member</th>
-                <th>Monthly Bill</th>
-            </tr>
-            
-            {% for family in families %}
-            <tr>
-                <td>{{ family.name }}</td>
-                <td>{{ family.count }}</td>
-                <td>₹{{ "{:,}".format(family.cost_per_member) }}</td>
-                <td><b>₹{{ "{:,}".format(family.count * family.cost_per_member) }}</b></td>
-            </tr>
-            {% endfor %}
-        </table>
-        <!-- Family Bar Chart -->
-        <img src="data:image/png;base64,{{ img_data }}" alt="Family Bar Chart">
+            <img src="data:image/png;base64,{{ img_data }}" alt="Family Size Chart">
+        </div>
     </div>
 
     <div class="footer">
-        <a href="{{ url_for('logout') }}" class="logout-btn">LOGOUT</a>
         <p>&copy; 2025 Unified Family Finance Tracker. All rights reserved.</p>
     </div>
-</body>
-</html>
-    
-    <script>
-        // Minimal JavaScript hooks for backend integration
-        document.addEventListener('DOMContentLoaded', function() {
-            // Example: Navigation buttons
-            document.getElementById('prev-page-btn').addEventListener('click', function() {
-                // Previous page logic
-            });
-            
-            document.getElementById('next-page-btn').addEventListener('click', function() {
-                // Next page logic
-            });
-        });
 
+    <script>
         function searchFamily() {
             let input = document.getElementById("searchBar").value.toUpperCase();
-            let table = document.getElementById("familyTable");
+            let table = document.getElementById("bills-table"); 
             let tr = table.getElementsByTagName("tr");
 
-            for (let i = 1; i < tr.length; i++) {
-                let td = tr[i].getElementsByTagName("td")[0]; // First column (Family Name)
+            for (let i = 1; i < tr.length; i++) { 
+                let td = tr[i].getElementsByTagName("td")[0]; 
                 if (td) {
                     let textValue = td.textContent || td.innerText;
-                    tr[i].style.display = textValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+                    tr[i].style.display = textValue.toUpperCase().includes(input) ? "" : "none";
                 }
             }
         }

@@ -24,13 +24,6 @@ header {
   transition: background-color 0.3s ease-in-out;
 }
 
-.logo {
-  background-color:  #007bff;; /* Your desired background color */
-  padding: 8px;
-  border-radius: 30px;
-}
-
-
 .super-user-button {
   color: #fff;
   background-color: #007bff;
@@ -70,7 +63,7 @@ header h1 {
 }
 .logout-btn {
   padding: 8px 15px;
-  background-color: #e74c3c;
+  background-color: #f44336;
   color: white !important;
   border: none;
   border-radius: 5px;
@@ -131,25 +124,19 @@ header h1 {
 .welcome-image:hover {
   transform: scale(1.05);
 }
-header {
-  display: flex;
-  justify-content: space-between; /* Ensures space between the left and right items */
-  align-items: center;
-  background: #45b0e6;
-  color: #fff;
-  padding: 20px;
-}
 
 /* NAVIGATION */
 nav {
   display: flex;
   gap: 15px;
-  margin-left: auto; /* Optional: explicitly pushes nav to the right */
-  justify-content: flex-end;
+  flex: 2;
+  justify-content: center;
 }
 nav button {
   padding: 10px 15px;
   background: #CFD8DC;
+  font-weight: bold;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -162,6 +149,7 @@ body.dark-mode nav button {
 nav button:hover {
   background: #B0BEC5;
   transform: scale(1.05);
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.8);
 }
 body.dark-mode nav button:hover {
   background: #444;
@@ -288,8 +276,10 @@ body.dark-mode #message {
 }
 
 .pagination-controls button {
-  background-color: #969696; /* Green background */
-  color: white; /* White text */
+  background-color: #c2ebfd; /* Green background */
+  color: #000000;
+  font-weight: bold;
+  text-transform: uppercase; /* Uppercase text */
   border: none; /* Remove border */
   padding: 10px 20px; /* Add padding */
   margin: 5px; /* Add margin for spacing */
@@ -322,7 +312,7 @@ body.dark-mode #message {
 body.dark-mode .budget-list,
 body.dark-mode .expense-list,
 body.dark-mode .table-list {
-  background: #666565;
+  background: #b5e6fc;
   color: #E0E0E0;
 }
 .budget-list h2,
@@ -343,9 +333,10 @@ body.dark-mode .table-list {
 }
 
 #add-expense-btn,
-#set-budget-btn {
+#set-budget-btn,
+.controls button {
   padding: 10px 20px;
-  background: #4CAF50;
+  background: #2196F3;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -354,9 +345,16 @@ body.dark-mode .table-list {
 }
 
 #add-expense-btn:hover,
-#set-budget-btn:hover {
-  background: #45a049;
-  transform: scale(1.05);
+#set-budget-btn:hover,
+.controls button:hover {
+  background: #1976D2;
+}
+
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 20px;
+  gap: 10px;
 }
 
 /* TABLE STYLING */
@@ -380,13 +378,13 @@ body.dark-mode th, body.dark-mode td {
   border-color: #b8b8b8;
 }
 th {
-  background: #dedddd;
+  background: #c2ebfd;
 }
 body.dark-mode th {
   background: #4b4b4b;
 }
 tr:hover {
-  background: #f1f1f1;
+  background: #e7f8fe;
 }
 body.dark-mode tr:hover {
   background: #545454;
@@ -1124,4 +1122,63 @@ select{
     .contact p {
         justify-content: center;
     }
+}
+
+
+/* Update Budget Filter Controls to match expense filter */
+.budget-filter {
+  text-align: center;
+  margin-bottom: 10px;
+  margin-right: 50px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.budget-filter select {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.budget-filter select:focus {
+  border-color: #4CAF50;
+}
+
+.budget-filter button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+/* Match the filter button colors */
+.budget-filter #budget-filter-btn {
+  background: #4CAF50;
+  color: #fff;
+}
+
+.budget-filter #budget-filter-btn:hover {
+  background: #5cca60;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Match the refresh button colors */
+.budget-filter #budget-refresh-btn {
+  background: #FF9800;
+  color: #fff;
+}
+
+.budget-filter #budget-refresh-btn:hover {
+  background: #ffae34;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
 }

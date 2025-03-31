@@ -13,29 +13,47 @@
     <div class="main-content">
         <div class="table-list">
             <div class="table-header">
-                <h2>All Savings Targets</h2>
-                <div class="controls">
-                    <!-- jinja templates for privilages -->
-                    {% if privilege == 'edit' %}
-                        <button onclick="showForm('savingTargetForm')">Add Saving Target</button>
-                    {% endif %}
-                    <button id="filterToggle" onclick="toggleFilter()">📅</button>
-                </div>
-                <!-- Month & Year Filter (Initially Hidden) -->
-                <div id="filterOptions" class="filter-dropdown">
-                    <label for="tableMonthFilter">Month:</label>
-                    <select id="tableMonthFilter">
-                        <option value="">Select Month</option>
-                    </select>
-                
-                    <label for="tableYearFilter">Year:</label>
-                    <select id="tableYearFilter">
-                        <option value="">Select Year</option>
-                    </select>
-                
-                    <button onclick="updateTables()">Apply</button>
-                </div>                
+                <h2 style="text-align: center; flex: 1;">All Savings Targets</h2>
+                {% if privilege == 'edit' %}
+                <button onclick="showForm('savingTargetForm')">Add Saving Target</button>
+                {% endif %}                
             </div>
+            <div class="controls">
+                <div class="filter">
+                    <label>From: <input type="date" id="from-date" class="small-input" name="from-date" /></label>
+                    <label>To: <input type="date" id="to-date" class="small-input" name="to-date" /></label>
+                    <button id="filter-btn" class="hover-effect" onclick="filterSavings()">&#128269;</button>
+                    <button id="refresh-btn" class="hover-effect" onclick="resetFilters()">&#8635;</button>
+                </div>
+                <button id="filterToggle" onclick="toggleFilter()">Month &#128269;</button>
+            </div>
+            <!-- Month & Year Filter (Initially Hidden) -->
+            <div id="filterOptions" class="filter-dropdown">
+                <label for="tableMonthFilter">Month:</label>
+                <select id="tableMonthFilter">
+                    <option value="">Select Month</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            
+                <label for="tableYearFilter">Year:</label>
+                <select id="tableYearFilter">
+                    <option value="">Select Year</option>
+                </select>
+            
+                <button onclick="updateTablesAndHide()">Apply</button>  <!-- Changed this line -->
+            </div>
+
             <table id="savingsTable" class="styled-table">
                 <thead>
                     <tr>
@@ -47,23 +65,17 @@
                         <th>Remaining Amount</th>
                         <th>Payment Mode</th>
                         {% if privilege == 'edit' %}
-                            <th>Edit/Delete</th>
-                            <th>Update Savings</th>
+                        <th>Edit/Delete</th>
+                        <th>Update Savings</th>
                         {% endif %}
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    <!-- Data will be dynamically added here -->
+                </tbody>
             </table>
-
-            <!-- Pagination Buttons -->
-            <div id="pagination">
-                <button id="prevPage" onclick="prevPage()" disabled>
-                    <span>&#9664;</span> <!-- Left arrow icon -->
-                </button>
-                <span id="pageInfo">Page 1</span>
-                <button id="nextPage" onclick="nextPage()">
-                    <span>&#9654;</span> <!-- Right arrow icon -->
-                </button>
+            <div id="savings-pagination-controls" class="pagination-controls center">
+                <!-- Pagination buttons will be dynamically added here -->
             </div>
         </div>
 
@@ -86,10 +98,7 @@
                         <option value="Travel">Travel</option>
                         <option value="Health">Health</option>
                     </select>
-                    
-                    <label for="saving_category_description">Category Description:</label>
-                    <input type="text" id="saving_category_description" placeholder="Category Description">
-                    
+                                        
                     <label for="savings_goal_name">Goal Name:</label>
                     <input type="text" id="savings_goal_name" placeholder="Goal Name" required>
                     
@@ -129,159 +138,186 @@
     <!-- Main graph section from below -->
 
     </div>
-    <div class="filter-container">
-        <select id="monthFilter">
-            <option value="">Select Month</option>
-        </select>
-    
-        <select id="yearFilter">
-            <option value="">Select Year</option>
-        </select>
-        <button onclick="updateChart()">Apply Filter</button>
-        <p id="error-message" style="color: red; display: none;">Please select both month and year.</p>
-    </div>
-    
-    <script>
-        var userPrivilege = "{{ privilege }}";
-        console.log("User Privilege:", userPrivilege); //logging in console to see it
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('/get_savings_filters')
-                .then(response => response.json())
-                .then(data => {
-                    let monthDropdown = document.getElementById("monthFilter");
-                    let yearDropdown = document.getElementById("yearFilter");
-    
-                    let addedMonths = new Set();
-                    let addedYears = new Set();
-    
-                    data.forEach(item => {
-                        if (!addedMonths.has(item.month)) {
-                            let monthOption = document.createElement("option");
-                            monthOption.value = item.month;
-                            monthOption.textContent = new Date(0, item.month - 1).toLocaleString('default', { month: 'long' });
-                            monthDropdown.appendChild(monthOption);
-                            addedMonths.add(item.month);
-                        }
-    
-                        if (!addedYears.has(item.year)) {
-                            let yearOption = document.createElement("option");
-                            yearOption.value = item.year;
-                            yearOption.textContent = item.year;
-                            yearDropdown.appendChild(yearOption);
-                            addedYears.add(item.year);
-                        }
-                    });
-                })
-                .catch(error => console.error("Error fetching filters:", error));
-        });
-    
-        function updateChart() {
-            let month = document.getElementById("monthFilter").value;
-            let year = document.getElementById("yearFilter").value;
-            let img = document.getElementById("savingsPieChart");  // Correct ID
-            let gaugeChartContainer = document.getElementById("gaugeChartContainer");  // Gauge Chart Div
-            let errorMessage = document.getElementById("error-message");
-            if (!month || !year) {
-                errorMessage.style.display = "block"; // Show error message
-                return; // Stop execution if either month or year is not selected
-            } else {
-                errorMessage.style.display = "none"; // Hide error message if both are selected
-            }
-            let queryParams = new URLSearchParams();
-            if (month) queryParams.append("month", month);
-            if (year) queryParams.append("year", year);
-            fetch("/gauge_chart?" + queryParams.toString())
-    .then(response => response.text())
-    .then(html => {
-        gaugeChartContainer.innerHTML = html; 
 
-        // Execute any embedded scripts in the response
-        let scripts = gaugeChartContainer.getElementsByTagName("script");
-        for (let i = 0; i < scripts.length; i++) {
-            let newScript = document.createElement("script");
-            newScript.textContent = scripts[i].textContent;
-            document.body.appendChild(newScript);  // Run script in the body
-        }
+<div class="graph-section">
+    <h3>Bar graph</h3>
+    <p>Visualize Your Financial Growth. Insights at Every Bar!</p>
+    <div class="bar-graph">
+        <div id="chart">
+            <script>
+                    fetch("/get_savings_data")
+                    .then(response => response.json())
+                    .then(data => {
+                        let usernames = data.map(item => item.username);
+                        let achieved_savings = data.map(item => item.Achieved_Savings);
+                        let target_savings = data.map(item => item.Target_Savings);
+                        let trace = {
+                            x: usernames,
+                            y: achieved_savings,
+                            type: "bar",
+                            text: achieved_savings.map((s, i) => `Saved: ${s}<br>Target: ${target_savings[i]}`),
+                            hoverinfo: "text",
+                            textposition: 'none', // Prevent text from showing on bar itself
+                            marker: { color: "royalblue" }
+                        };
+
+                        
+                        let layout = {
+                            title: {
+                                text: "User Saving",
+                                font: { color: "black" }
+                            },
+                            xaxis: { 
+                                title: { 
+                                    text: "Users", 
+                                    font: { color: "black" },  // Title color
+                                }, 
+                                tickfont: { color: "black" }, 
+                                automargin: true
+                            },
+                            yaxis: { 
+                                title: { 
+                                    text: "Savings", 
+                                    font: { color: "black" },  // Title color
+                                    standoff: 20  // Increased spacing
+                                }, 
+                                tickfont: { color: "black" }, 
+                                automargin: true
+                            },
+                            margin: { l: 100 },  // Increase left margin to allow space
+                            
+                            paper_bgcolor: "rgba(0,0,0,0)",  /* Fully transparent chart background */
+                            plot_bgcolor: "rgba(0,0,0,0)",   /* Fully transparent plot area */
+                            margin: { t: 50, l: 50, r: 70, b: 50 }
+                        };
+                        
+                        var config ={
+                            displayModeBar: false,
+                            textposition: 'none'
+                        }
+                        Plotly.newPlot("chart", [trace], layout,config);
+                    });
+            </script>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="small-graphs"> -->
+<!-- Add filter container above both charts -->
+
+
+
+    <div class="filter-container-wrapper">
+        <div class="filter-container">
+            <div class="filter-header">
+                <h3>Filter Charts</h3>
+            </div>
+            <div class="filter-controls">
+                <select id="monthFilter">
+                    <option value="">Month</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                <select id="yearFilter">
+                    <option value="">Year</option>
+                </select>
+                <button onclick="updateCharts()">Apply</button>
+            </div>
+            <p id="error-message" style="color: red; display: none;">Please select both month and year.</p>
+        </div>
+    </div>
+
+    <div class="small-graphs">
+        <div class="small-graph">
+            <h3>Pie Chart</h3>
+            <img id="savingsPieChart" src="/savings_chart" class="img-fluid" alt="Savings Pie Chart">
+        </div>
+        <div class="small-graph">
+            <h3>Gauge Chart</h3>
+            <div id="gaugeChartContainer" class="gauge-chart">{{ gauges|safe }}</div>
+        </div>
+    </div>
+
+<script>
+function updateCharts() {
+    let month = document.getElementById("monthFilter").value;
+    let year = document.getElementById("yearFilter").value;
+    let errorMessage = document.getElementById("error-message");
+    let img = document.getElementById("savingsPieChart");
+    let gaugeChartContainer = document.getElementById("gaugeChartContainer");
+    
+    if (!month || !year) {
+        errorMessage.style.display = "block";
+        return;
+    }
+    
+    errorMessage.style.display = "none";
+    
+    // Build query parameters
+    let queryParams = new URLSearchParams();
+    queryParams.append("month", month);
+    queryParams.append("year", year);
+    
+    // Update pie chart
+    img.src = "/savings_chart?" + queryParams.toString();
+    
+    // Update gauge chart
+    fetch("/gauge_chart?" + queryParams.toString())
+        .then(response => response.text())
+        .then(html => {
+            gaugeChartContainer.innerHTML = html;
+            
+            // Execute any embedded scripts in the response
+            let scripts = gaugeChartContainer.getElementsByTagName("script");
+            for (let i = 0; i < scripts.length; i++) {
+                let newScript = document.createElement("script");
+                newScript.textContent = scripts[i].textContent;
+                document.body.appendChild(newScript);
+            }
+        })
+        .catch(error => console.error("Error updating gauge chart:", error));
+}
+
+
+    var userPrivilege = "{{ privilege }}";
+    console.log("User Privilege:", userPrivilege); //logging in console to see it
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/get_savings_filters')
+            .then(response => response.json())
+            .then(data => {
+                let yearDropdown = document.getElementById("yearFilter");
+
+                let addedYears = new Set();
+
+                data.forEach(item => {
+
+                    if (!addedYears.has(item.year)) {
+                        let yearOption = document.createElement("option");
+                        yearOption.value = item.year;
+                        yearOption.textContent = item.year;
+                        yearDropdown.appendChild(yearOption);
+                        addedYears.add(item.year);
+                    }
+                });
+            })
+            .catch(error => console.error("Error fetching filters:", error));
     });
 
-            img.src = "/savings_chart?" + queryParams.toString();  // Update image source
-        }
-    </script>
-
-            <div class="graph-section">
-                <h3>Bar graph</h3>
-                <p>Visualize Your Financial Growth. Insights at Every Bar!</p>
-                <div class="bar-graph">
-                    <div id="chart">
-                        <script>
-                                fetch("/get_savings_data")
-                                .then(response => response.json())
-                                .then(data => {
-                                    let usernames = data.map(item => item.username);
-                                    let achieved_savings = data.map(item => item.Achieved_Savings);
-                                    let target_savings = data.map(item => item.Target_Savings);
-                                    let trace = {
-                                        x: usernames,
-                                        y: achieved_savings,
-                                        type: "bar",
-                                        text: achieved_savings.map((s, i) => `Saved: ${s}<br>Target: ${target_savings[i]}`),
-                                        hoverinfo: "text",
-                                        textposition: 'none', // Prevent text from showing on bar itself
-                                        marker: { color: "royalblue" }
-                                    };
-
-                                    
-                                    let layout = {
-                                        title: {
-                                            text: "User Saving",
-                                            font: { color: "black" }
-                                        },
-                                        xaxis: { 
-                                            title: { 
-                                                text: "Users", 
-                                                font: { color: "black" },  // Title color
-                                            }, 
-                                            tickfont: { color: "black" }, 
-                                            automargin: true
-                                        },
-                                        yaxis: { 
-                                            title: { 
-                                                text: "Savings", 
-                                                font: { color: "black" },  // Title color
-                                                standoff: 20  // Increased spacing
-                                            }, 
-                                            tickfont: { color: "black" }, 
-                                            automargin: true
-                                        },
-                                        margin: { l: 100 },  // Increase left margin to allow space
-                                        
-                                        paper_bgcolor: "rgba(0,0,0,0)",  /* Fully transparent chart background */
-                                        plot_bgcolor: "rgba(0,0,0,0)",   /* Fully transparent plot area */
-                                        margin: { t: 50, l: 50, r: 70, b: 50 }
-                                    };
-                                    
-                                    var config ={
-                                        displayModeBar: false,
-                                        textposition: 'none'
-                                    }
-                                    Plotly.newPlot("chart", [trace], layout,config);
-                                });
-                        </script>
-                    </div>
-                </div>
-            </div>
-        
-
-        <div class="small-graphs">
-            <div class="small-graph">
-                <h3>Pie chart</h3>
-                <img id="savingsPieChart" src="/savings_chart" class="img-fluid" alt="Savings Pie Chart">
-            </div>
-            <div class="small-graph">
-                <h3>Gauge Chart</h3>
-                <div id="gaugeChartContainer" class="gauge-chart">{{ gauges|safe}}</div>
-            </div>
-        </div>
+    function updateTablesAndHide() {  // Add this new function
+        updateTables();  // Call the existing update function
+        document.getElementById("filterOptions").style.display = "none";  // Hide dropdown
+    }
+</script>
 
 <script src="{{ url_for('static', filename='savings.js') }}"></script>
 

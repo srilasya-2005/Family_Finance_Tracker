@@ -7,6 +7,16 @@ body {
     overflow: hidden;
 }
 
+/* Centered title */
+.centered-title {
+    text-align: center;
+    padding-left: 350px;
+    padding-right: 300px;
+    font-weight: bold;
+    color: #ffffff; 
+}   
+
+
 .background-container {
     position: fixed;
     top: 0;
@@ -219,9 +229,3 @@ body {
     margin: 0;
     font-size: 10px;
 }
-/* logo */
-.logo {
-    background-color:  grey; /* Your desired background color */
-    padding: 8px;
-    border-radius: 30px;
-  }

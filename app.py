@@ -20,6 +20,7 @@ import plotly.graph_objects as go
 from apscheduler.schedulers.background import BackgroundScheduler 
 import pdfkit  
 from threading import Thread
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.secret_key = "unifiedfamilyfinancetracker"
@@ -32,7 +33,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = "uploads"
 
 db.init_app(app)
-
+migrate = Migrate(app, db)  # Add this line after db.init_app(app)
 
 # Configure Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -49,7 +50,7 @@ def generate_otp():
 
 # Function to send OTP
 def send_otp(email, otp):
-    print(f"Sending OTP to {email}: {otp}")
+    print(f"Generated OTP for {email}: {otp}") # Print OTP in console for testing
     msg = Message("Your OTP for Unified Family Finance Tracker", sender="your_email@gmail.com", recipients=[email])
     msg.body = f"""
                 Dear User,
@@ -63,6 +64,12 @@ def send_otp(email, otp):
                 Best regards,  
                 Unified Family Finance Tracker Team """
     mail.send(msg)
+
+def send_otp_async(email, otp):
+    def send_async():
+        with app.app_context():
+            send_otp(email, otp)
+    Thread(target=send_async).start()
 
 
 @app.route('/')
@@ -129,7 +136,8 @@ def login():
             elif user.role == "super_user" or user.role == "family_member":
                 otp = generate_otp()
                 session['otp'] = otp  
-                send_otp(email, otp)
+                # send_otp(email, otp)  # Use sync version
+                send_otp_async(email, otp)  # Use async version
                 return redirect(url_for('verify'))
             
         flash('Invalid email or password')
@@ -217,52 +225,41 @@ def reset_password():
 @app.route("/admin_dashboard")
 @login_required
 def admin_dashboard():
-    if "user_id" not in session or session.get("role") != "admin":
-        return redirect(url_for("login"))
+    # Fetch family-wise user count (excluding admins)
+    family_data = db.session.query(
+        User.family_name,
+        db.func.count(User.id).label("total_members")
+    ).filter(User.role.in_(["super_user", "family_member"])).group_by(User.family_name).all()
 
-    # Sync family data automatically
-    family_names = db.session.query(User.family_name).filter_by(role="super_user").distinct().all()
+    # Define fixed cost per user
+    cost_per_user = 500
 
-    for name_tuple in family_names:
-        name = name_tuple[0]
+    # Compute billing dynamically with a fixed cost
+    families = [
+        {
+            "name": family_name,
+            "count": total_members,
+            "cost_per_member": cost_per_user,
+            "monthly_bill": total_members * cost_per_user  # Fixed 500 per user
+        }
+        for family_name, total_members in family_data
+    ]
 
-        # Count how many super_users belong to this family
-        user_count = User.query.filter_by(family_name=name).count()
-
-        # Default cost per member
-        default_cost_per_member = 500
-
-        # Check if family already exists
-        existing_family = Family.query.filter_by(name=name).first()
-
-        if not existing_family:
-            # Create new family entry
-            new_family = Family(name=name, count=user_count, cost_per_member=default_cost_per_member)
-            db.session.add(new_family)
-        else:
-            # Update count and cost
-            existing_family.count = user_count
-            existing_family.cost_per_member = default_cost_per_member
-
-    db.session.commit()
-    img_data=create_bar_chart()  
-
-    # Pagination for super users
+    # Paginate users (excluding admins)
     page = request.args.get('page', 1, type=int)
-    users = User.query.filter_by(role="super_user").paginate(page=page, per_page=4, error_out=False)
+    users = User.query.filter(User.role.in_(["super_user", "family_member"])).all()
 
-    # Family bill calculation
-    families = Family.query.all()
-    family_bills = {family.name: family.count * family.cost_per_member for family in families}
+    # Generate the graph
+    img_data = generate_family_chart(users)  # ✅ Pass only super_users + family_members
 
     return render_template(
         "admin_dashboard.html",
         users=users,
-        family_bills=family_bills,
         families=families,
-        time=time,
-        img_data=img_data
+        img_data=img_data  # ✅ Send graph data to template
     )
+
+
 @app.route('/verify', methods=['GET', 'POST'])
 @login_required
 def verify():
@@ -322,9 +319,9 @@ def dashboard():
     stacked_bar_chart = generate_stacked_bar_chart(user_id=user.id, month=default_month, year=default_year)
     line_chart = generate_line_chart(year=default_year, user_id=user.id)
 
-    if user.role == "super_user":
-        return render_template("dashboard_edit.html", is_super_user=True,
-                               username=user.username,
+    if user.role == "super_user" or (user.role == "family_member" and user.status == "approved" and user.privilege == "edit"):
+        return render_template("dashboard_edit.html", is_super_user=(user.role == "super_user"),
+                               username=user.username, 
                                users=all_users,
                                default_user=default_user,
                                monthly_plot=monthly_plot,
@@ -337,38 +334,22 @@ def dashboard():
                                default_month=default_month,
                                current_year=current_year)  # Pass current_year
 
-    elif user.role == "family_member" and user:
-        if user.status == "approved":
-            if user.privilege == "view":
-                return render_template("dashboard_view.html", username=user.username,
-                                       users=all_users,
-                                       default_user=default_user,
-                                       monthly_plot=monthly_plot,
-                                       category_plot=category_plot,
-                                       pie_chart=pie_chart,
-                                       bar_chart=bar_chart,
-                                       stacked_bar_chart=stacked_bar_chart,
-                                       line_chart=line_chart,
-                                       default_year=default_year,
-                                       default_month=default_month,
-                                       current_year=current_year)  # Pass current_year
+    elif user.role == "family_member" and user.status == "approved" and user.privilege == "view" and user:
+        return render_template("dashboard_view.html", username=user.username,
+                                users=all_users,
+                                default_user=default_user,
+                                monthly_plot=monthly_plot,
+                                category_plot=category_plot,
+                                pie_chart=pie_chart,
+                                bar_chart=bar_chart,
+                                stacked_bar_chart=stacked_bar_chart,
+                                line_chart=line_chart,
+                                default_year=default_year,
+                                default_month=default_month,
+                                current_year=current_year)  # Pass current_year
 
-            elif user.privilege == "edit":
-                return render_template("dashboard_edit.html", username=user.username,
-                                       users=all_users,
-                                       default_user=default_user,
-                                       monthly_plot=monthly_plot,
-                                       category_plot=category_plot,
-                                       pie_chart=pie_chart,
-                                       bar_chart=bar_chart,
-                                       stacked_bar_chart=stacked_bar_chart,
-                                       line_chart=line_chart,
-                                       default_year=default_year,
-                                       default_month=default_month,
-                                       current_year=current_year)  # Pass current_year
-
-            flash("Your account is pending approval.", "warning")
-            return redirect(url_for("login"))
+    flash("Your account is pending approval.", "warning")
+    return redirect(url_for("login"))
 
 
 @app.route("/update_approved_by", methods=["POST"])
@@ -458,7 +439,7 @@ def create_subaccount():
         role="family_member",
         privilege=privilege,
         status="pending",  # Set initial status as pending
-        approved_by=None  # Will be set when approved
+        approved_by=superuser.id  # Set approved_by to the superuser's ID
     )
 
     db.session.add(new_user)
@@ -678,8 +659,7 @@ def add_expense():
             category = Category.query.filter_by(name=data.get("category")).first()
             if not category:
                 category = Category(
-                    name=data.get("category"),
-                    category_desc=data.get("category-desc", "")
+                    name=data.get("category")
                 )
                 db.session.add(category)
                 db.session.flush()
@@ -737,7 +717,7 @@ def get_expenses():
     from_date = request.args.get("from_date")
     to_date = request.args.get("to_date")
     page = request.args.get("page", 1, type=int)
-    per_page = 10
+    per_page = 7
 
     query = Expense.query.filter_by(user_id=user_id)
     if from_date:
@@ -770,7 +750,6 @@ def get_expense(expense_id):
         "id": expense.id,
         "name": expense.name,
         "category": expense.category.name if expense.category else "Unknown",
-        "category_desc": expense.category.category_desc if expense.category else "",
         "date": expense.date.strftime("%Y-%m-%d"),
         "amount": expense.amount,
         "description": expense.description,
@@ -819,8 +798,7 @@ def edit_expense(expense_id):
     
     category = Category.query.filter_by(name=category_name).first()
     if not category:
-        category_desc = data.get("category-desc", "")
-        category = Category(name=category_name, category_desc=category_desc)
+        category = Category(name=category_name)
         db.session.add(category)
         db.session.commit()
     expense.category_id = category.category_id
@@ -917,9 +895,7 @@ def get_stats():
         Category.name, db.func.sum(Expense.amount)
     ).join(Category).group_by(Category.name).order_by(db.func.sum(Expense.amount).desc()).first()
     highest_amount = query.with_entities(db.func.max(Expense.amount)).scalar() or 0
-    # Using decimal Unicode instead of hex
-    empty_face = chr(128566)  # Decimal Unicode for 😶
-    highest_category_name = highest_category[0] if highest_category else f"Empty!{empty_face}"
+    highest_category_name = highest_category[0] if highest_category else f"Empty!{chr(128566) }" # Decimal Unicode for 😶
     
     return jsonify({
         "total_spent": float(total_spent),
@@ -943,57 +919,67 @@ def toggle_recurring(budget_id):
 
 def check_and_create_recurring_budgets(user_id):
     """Check and create recurring budgets for current month if not already created"""
-    try:
-        with app.app_context():
-            now = datetime.now()
-            current_month = now.month
-            current_year = now.year
-            
-            # Get last month's info
-            if current_month == 1:
-                last_month = 12
-                last_year = current_year - 1
-            else:
-                last_month = current_month - 1
-                last_year = current_year
-            
-            # Find recurring budgets from last month
-            recurring_budgets = Budget.query.filter_by(
-                user_id=user_id,
-                recurring=True,
-                month=last_month,
-                year=last_year
-            ).all()
-            
-            created_count = 0
-            for budget in recurring_budgets:
-                # Check if budget already exists for current month
-                existing_budget = Budget.query.filter_by(
-                    user_id=user_id,
-                    category_id=budget.category_id,
-                    month=current_month,
-                    year=current_year
-                ).first()
+    
+    # Only run for first 3 days of the month
+    now = datetime.now()
+    if now.day > 3:
+        return
+        
+    def async_create_budgets():
+        try:
+            with app.app_context():
+                current_month = now.month
+                current_year = now.year
                 
-                if not existing_budget:
-                    new_budget = Budget(
+                # Get last month's info
+                if current_month == 1:
+                    last_month = 12
+                    last_year = current_year - 1
+                else:
+                    last_month = current_month - 1
+                    last_year = current_year
+                
+                # Find recurring budgets from last month
+                recurring_budgets = Budget.query.filter_by(
+                    user_id=user_id,
+                    recurring=True, 
+                    month=last_month,
+                    year=last_year
+                ).all()
+                
+                created_count = 0
+                for budget in recurring_budgets:
+                    # Check if budget already exists for current month
+                    existing_budget = Budget.query.filter_by(
                         user_id=user_id,
                         category_id=budget.category_id,
-                        amount=budget.amount,
                         month=current_month,
-                        year=current_year,
-                        recurring=True
-                    )
-                    db.session.add(new_budget)
-                    created_count += 1
-            
-            if created_count > 0:
-                db.session.commit()
-                print(f"[DEBUG] Created {created_count} recurring budgets for {current_month}/{current_year}")
+                        year=current_year
+                    ).first()
+                    
+                    if not existing_budget:
+                        new_budget = Budget(
+                            user_id=user_id,
+                            category_id=budget.category_id,
+                            amount=budget.amount,
+                            month=current_month,
+                            year=current_year,
+                            recurring=True
+                        )
+                        db.session.add(new_budget)
+                        created_count += 1
                 
-    except Exception as e:
-        print(f"[ERROR] Failed to create recurring budgets: {str(e)}")
-        db.session.rollback()
+                if created_count > 0:
+                    db.session.commit()
+                    print(f"[DEBUG] Created {created_count} recurring budgets for {current_month}/{current_year}")
+                    
+        except Exception as e:
+            print(f"[ERROR] Failed to create recurring budgets: {str(e)}")
+            with app.app_context():
+                db.session.rollback()
+
+    # Start the budget creation in a separate thread
+    Thread(target=async_create_budgets).start()
 
 @app.route("/add_budget", methods=["POST"])
 def add_budget():
@@ -1050,36 +1036,63 @@ def add_budget():
 
 @app.route("/get_budgets")
 def get_budgets():
-    if 'user_id' not in session:
-        return jsonify({"message": "Unauthorized"}), 401
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    page = request.args.get('page', 1, type=int)
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+    per_page = 7
 
     user_id = session['user_id']
-    role = session['role']
-    
-    if role == "family_member":
-        user = User.query.get(user_id)
-        if user.privilege not in ['view', 'edit']:
-            return jsonify({"message": "Insufficient privileges"}), 403
+    user = User.query.get(user_id)
+    if user.role == "family_member":
         user_id = user.approved_by
-        if not user_id:
-            return jsonify({"message": "Not linked to any family"}), 400
 
-    page = request.args.get("page", 1, type=int)
-    per_page = 10
+    # Base query
+    query = Budget.query.filter_by(user_id=user_id)
 
-    budgets = Budget.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page, error_out=False)
+    # Apply filters if provided
+    if month:
+        query = query.filter_by(month=month)
+    if year:
+        query = query.filter_by(year=year)
+
+    # Apply pagination
+    paginated = query.order_by(Budget.year.desc(), Budget.month.desc()).\
+        paginate(page=page, per_page=per_page, error_out=False)
+
+    budgets = [{
+        "id": b.budget_id,
+        "year": b.year,
+        "month": b.month,
+        "category": b.category.name,
+        "amount": float(b.amount),
+        "recurring": b.recurring
+    } for b in paginated.items]
+
     return jsonify({
-        "budgets": [{
-            "id": budget.budget_id,
-            "year": budget.year,
-            "month": budget.month,
-            "category": budget.category.name if budget.category else "Unknown",
-            "amount": budget.amount,
-            "recurring": budget.recurring
-        } for budget in budgets.items],
-        "total_pages": budgets.pages,
-        "current_page": budgets.page
+        "budgets": budgets,
+        "current_page": paginated.page,
+        "total_pages": paginated.pages
     })
+
+@app.route('/get_budget_years')
+def get_budget_years():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+    if user.role == "family_member":
+        user_id = user.approved_by
+
+    # Query distinct years from budgets
+    years = db.session.query(db.distinct(Budget.year)).\
+        filter_by(user_id=user_id).\
+        order_by(Budget.year.asc()).all()
+
+    return jsonify({"years": [year[0] for year in years]})
 
 @app.route("/get_budget/<int:budget_id>")
 def get_budget(budget_id):
@@ -1363,10 +1376,11 @@ def plot_gauge_charts():
     selected_month = request.args.get('month')
     selected_year = request.args.get('year')
 
-    # Base query with user filter
+    # Base query with category ID for proper grouping
     query = db.session.query(
+        SavingCategory.id,
         SavingCategory.name.label('category'),
-        SavingsTarget.amount.label('target'),
+        db.func.coalesce(db.func.sum(SavingsTarget.amount), 0).label('target'),
         db.func.coalesce(db.func.sum(Savings.amount), 0).label('saved')
     ).join(SavingsTarget, SavingCategory.id == SavingsTarget.category_id)\
      .outerjoin(Savings, SavingsTarget.id == Savings.target_id)\
@@ -1378,8 +1392,8 @@ def plot_gauge_charts():
     if selected_year:
         query = query.filter(db.extract('year', Savings.date) == int(selected_year))
 
-    # Group data
-    data = query.group_by(SavingCategory.name, SavingsTarget.amount).all()
+    # Group by category ID instead of just name to prevent duplicates
+    data = query.group_by(SavingCategory.id, SavingCategory.name).all()
 
     if not data:
         return "<div style='text-align:center;'><h3>No Data Available</h3></div>"
@@ -1388,18 +1402,28 @@ def plot_gauge_charts():
     fig = go.Figure()
     buttons = []
 
-    for idx, (cat, target, saved) in enumerate(data):
-        progress = (float(saved) / float(target)) * 100 if target else 0
+    for idx, (cat_id, cat, target, saved) in enumerate(data):
+        progress = (float(saved) / float(target) * 100) if target else 0  # Prevent division by zero
+
+        gauge_color = "red" if progress <= 30 else "yellow" if progress <= 70 else "green"
 
         fig.add_trace(
-            go.Indicator(
-                mode="gauge+number",
-                value=progress,
-                title={'text': f"{cat}"},
-                gauge={'axis': {'range': [0, 100]}, 'bar': {'color': 'blue'}},
-                visible=True if idx == 0 else False
-            )
+        go.Indicator(
+            mode="gauge+number",
+            value=progress,
+            title={'text': f"{cat}"},
+            gauge={
+                'axis': {'range': [0, 100]},
+                'bar': {'color': gauge_color},  # Dynamically set color
+                'threshold': {
+                    'line': {'color': gauge_color, 'width': 5},  # Needle color
+                    'thickness': 0.75,
+                    'value': progress
+                }
+            },
+            visible=True if idx == 0 else False
         )
+    )
 
         buttons.append(
             dict(
@@ -1414,16 +1438,14 @@ def plot_gauge_charts():
 
     # Dropdown for categories
     fig.update_layout(
-        updatemenus=[
-            dict(
-                active=0,
-                buttons=buttons,
-                x=1.15,
-                y=1,
-                xanchor='right',
-                yanchor='top'
-            )
-        ],
+        updatemenus=[{
+            "active": 0,
+            "buttons": buttons,
+            "x": 1.15,
+            "y": 2,
+            "xanchor": "right",
+            "yanchor": "top"
+        }],
         height=400,
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)'
@@ -1433,20 +1455,20 @@ def plot_gauge_charts():
 
 # get_category_savings is for gauge chart
 @app.route('/get_category_savings')
-def get_category_savings():  # Using for gauge chart to filter category
-    # Get user_id from session if logged in
+def get_category_savings():
     user_id = session.get('user_id')
     selected_month = request.args.get('month')
     selected_year = request.args.get('year')
 
-    # Base query
+    # Base query with category ID to properly group values
     query = db.session.query(
+        SavingCategory.id,
         SavingCategory.name.label('category'),
         db.func.coalesce(db.func.sum(Savings.amount), 0).label('total_saved')
     ).outerjoin(SavingsTarget, SavingCategory.id == SavingsTarget.category_id)\
      .outerjoin(Savings, SavingsTarget.id == Savings.target_id)
 
-    # Apply user filter if user_id is available
+    # Apply user filter
     if user_id:
         query = query.filter(SavingsTarget.user_id == user_id)
 
@@ -1456,12 +1478,13 @@ def get_category_savings():  # Using for gauge chart to filter category
     if selected_year:
         query = query.filter(db.extract('year', Savings.date) == int(selected_year))
 
-    # Group data
-    data = query.group_by(SavingCategory.name).all()
+    # Group by category ID instead of just name
+    data = query.group_by(SavingCategory.id, SavingCategory.name).all()
 
-    # Preparing data to return as JSON
+    # Preparing unique categories with summed values
     result = [{'category': row.category, 'saved_amount': row.total_saved} for row in data]
     return jsonify(result)
+
 
 #get_savings_filters is for the filters for gauge and pie chart for monthyears
 @app.route('/get_savings_filters', methods=['GET'])  #For filters according to month and year
@@ -1523,7 +1546,6 @@ def add_saving_target():
     if not category:
         category = SavingCategory(
             name=data['saving_category_name'],
-            description=data.get('saving_category_description', '')
         )
         db.session.add(category)
         db.session.commit()
@@ -1563,8 +1585,7 @@ def update_saving_target(id):
         category = SavingCategory.query.filter_by(name=data['saving_category_name']).first()
         if not category:
             category = SavingCategory(
-                name=data['saving_category_name'],
-                description=data.get('saving_category_description', '')  # Use default empty description
+                name=data['saving_category_name']
             )
             db.session.add(category)
             db.session.commit()
@@ -1636,7 +1657,6 @@ def get_savings(id):
         return jsonify({"savings": {
             "savings_target_id": savings.target_id,
             "saving_category_name": category.name,
-            "saving_category_description": category.description,
             "savings_goal_name": savings.savings_target.name,
             "savings_target_amount": float(savings.savings_target.amount),
             "savings_target_date": str(savings.savings_target.target_date),
@@ -1652,7 +1672,6 @@ def get_savings(id):
         return jsonify({"savings": {
             "savings_target_id": target.id,
             "saving_category_name": category.name,
-            "saving_category_description": category.description,
             "savings_goal_name": target.name,
             "savings_target_amount": float(target.amount),
             "savings_target_date": str(target.target_date),
@@ -1696,12 +1715,17 @@ def get_all_data():
 
     user_id = session["user_id"]
     user = User.query.get(user_id)
-    # privilege = user.privilege
     if not user:
         return jsonify({"error": "User not found"}), 404
 
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = 6  # Fixed number of items per page
+
     month = request.args.get("month")
     year = request.args.get("year")
+    from_date = request.args.get("from_date")
+    to_date = request.args.get("to_date")
 
     # Start base query
     query = SavingsTarget.query.join(User, SavingsTarget.user_id == User.id)
@@ -1710,7 +1734,7 @@ def get_all_data():
     if user.role == "family_member":
         query = query.filter(SavingsTarget.user_id == user.id)
     elif user.role == "super_user":
-        family_members = User.query.filter_by(approved_by=user.id).all()  # Assuming this exists
+        family_members = User.query.filter_by(approved_by=user.id).all()
         family_member_ids = [member.id for member in family_members]
         query = query.filter(SavingsTarget.user_id.in_([user.id] + family_member_ids))
 
@@ -1720,7 +1744,20 @@ def get_all_data():
     if year:
         query = query.filter(db.extract("year", SavingsTarget.target_date) == int(year))
 
+    # Apply date filters if provided
+    if from_date:
+        query = query.filter(SavingsTarget.target_date >= from_date)
+    if to_date:
+        query = query.filter(SavingsTarget.target_date <= to_date)
+
+    # Get total count for pagination
+    total_count = query.count()
+    total_pages = (total_count + per_page - 1) // per_page
+
+    # Apply pagination
+    query = query.offset((page - 1) * per_page).limit(per_page)
     targets = query.all()
+
     data = []
     for target in targets:
         savings = Savings.query.filter_by(target_id=target.id).first()
@@ -1729,7 +1766,6 @@ def get_all_data():
         data.append({
             "savings_target_id": target.id,
             "saving_category_name": category.name,
-            "saving_category_description": category.description,
             "savings_goal_name": target.name,
             "savings_target_amount": float(target.amount),
             "savings_target_date": str(target.target_date),
@@ -1737,9 +1773,15 @@ def get_all_data():
             "savings_payment_mode": savings.mode if savings else '',
             "savings_date_saved": str(savings.date) if savings else str(datetime.today().date()),
             "savings_updated_date": str(savings.date) if savings else None,
-            # "userPrivilege":privilege,
         })
-    return jsonify(data)
+
+    return jsonify({
+        "data": data,
+        "current_page": page,
+        "total_pages": total_pages,
+        "total_count": total_count,
+        "per_page": per_page
+    })
 
 # #automation
 @app.route('/generate_report', methods=['POST'])
@@ -1765,7 +1807,7 @@ def generate_report_for_user(user):
         today = datetime.today()
         first_day_of_current_month = today.replace(day=1)
         last_month_date = first_day_of_current_month - timedelta(days=1)
-        month, year = last_month_date.month, last_month_date.year
+        month, year = last_month_date.month, year
 
         # Fetch expenses for current month and year
         expenses = Expense.query.filter(
@@ -1858,20 +1900,6 @@ def send_report_email(email, report_path):
 
     except Exception as e:
         print(f"❌ Error sending email: {str(e)}")
-
-
-# @app.route('/test_report')
-# def manual_generate_report():
-#     user = User.query.get(2)
-#     if not user:
-#         return "❌ User with ID 2 not found.", 404
-
-#     report_path = generate_report_for_user(user)
-#     if not report_path:
-#         return "❌ Failed to generate report.", 500
-
-#     send_report_email(user.email, report_path)
-#     return f"✅ Report for {user.username} sent to {user.email}."
 
 
 # --- Scheduler for Every Month First week of Friday at 8 AM ---

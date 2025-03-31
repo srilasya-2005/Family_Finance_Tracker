@@ -23,9 +23,9 @@ class Category(db.Model):
     __tablename__ = 'category'
     category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False, unique=True)
-    category_desc = db.Column(db.String(255), nullable=True)
     expenses = db.relationship('Expense', backref='category', lazy=True)
     budgets = db.relationship('Budget', backref='category', lazy=True)
+    # category_desc column removed
 
 class Expense(db.Model):
     __tablename__ = 'expense'
@@ -55,7 +55,6 @@ class SavingCategory(db.Model):
     __tablename__ = 'saving_category'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(255), nullable=True)
     savings_targets = db.relationship('SavingsTarget', backref='saving_category', lazy=True)
 
 class SavingsTarget(db.Model):

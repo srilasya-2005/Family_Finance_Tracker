@@ -175,7 +175,6 @@ async function fetchExpenseDetails(id) {
     document.getElementById("expense-id").value = expense.id;
     document.getElementById("name").value = expense.name;
     document.getElementById("category").value = expense.category;
-    document.getElementById("category-desc").value = expense.category_desc; // Ensure this line is present
     document.getElementById("date").value = expense.date;
     document.getElementById("amount").value = expense.amount;
     document.getElementById("description").value = expense.description;
@@ -195,19 +194,7 @@ document.getElementById("filter-btn").addEventListener("click", function() {
     const fromDate = document.getElementById("from-date").value;
     const toDate = document.getElementById("to-date").value;
     if (!fromDate || !toDate) {
-        const alertBox = document.createElement("div");
-        alertBox.textContent = "😯Please fill out both date fields😅 ";
-        alertBox.style.position = "fixed";
-        alertBox.style.top = "5px";
-        alertBox.style.left = "50%";
-        alertBox.style.transform = "translateX(-50%)";
-        alertBox.style.backgroundColor = "#f44336";
-        alertBox.style.color = "#fff";
-        alertBox.style.padding = "20px";
-        alertBox.style.borderRadius = "20px";
-        alertBox.style.boxShadow = "3px 3px 10px rgba(0, 0, 0, 0.1)";
-        document.body.appendChild(alertBox);
-        setTimeout(() => { document.body.removeChild(alertBox); }, 2000);
+        showTemporaryAlert("😯Please fill out both date fields😅", "error");
         return;
     }
     fetchExpenses(fromDate, toDate);
@@ -248,73 +235,89 @@ async function updateStats(fromDate, toDate) {
     document.getElementById("highest-amount-value").textContent = stats.highest_amount.toFixed(2);
 }
 
-// Populate year select dropdown
-function populateYearSelect() {
-    const yearSelect = document.getElementById("year-select");
-    const currentYear = new Date().getFullYear();
-    for (let i = currentYear; i <= currentYear + 10; i++) {
-        let option = document.createElement("option");
-        option.value = i;
-        option.textContent = i;
-        yearSelect.appendChild(option);
-    }
-}
-
 // Toggle recurring status
 async function toggleRecurring(id, isRecurring) {
+    const checkbox = event.target; // Get the checkbox element that triggered the event
+    const originalState = !isRecurring; // Store the original state (opposite of what it's changing to)
+    
     const confirmation = confirm(`Set as ${isRecurring ? "recurring" : "non-recurring"}?`);
-    if (!confirmation) return;
+    if (!confirmation) {
+        checkbox.checked = originalState; // Revert checkbox to original state if cancelled
+        return;
+    }
 
-    await fetch(`${API_URL}/toggle_recurring/${id}`, {
-        method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recurring: isRecurring })
-    });
-    fetchBudgets();
+    try {
+        const response = await fetch(`${API_URL}/toggle_recurring/${id}`, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recurring: isRecurring })
+        });
+        
+        if (!response.ok) {
+            // If the server request fails, revert the checkbox
+            checkbox.checked = originalState;
+            throw new Error('Failed to update recurring status');
+        }
+    } catch (error) {
+        console.error('Error updating recurring status:', error);
+        checkbox.checked = originalState;
+        showTemporaryAlert('Failed to update recurring status', 'error');
+    }
 }
 
 // Fetch and display budgets
 async function fetchBudgets(page = 1) {
+    const month = document.getElementById('budget-month-select').value;
+    const year = document.getElementById('budget-year-select').value;
+    
     let url = `${API_URL}/get_budgets?page=${page}`;
-    let response = await fetch(url);
-    let data = await response.json();
-    let budgets = data.budgets;
-    let tableBody = document.getElementById("budget-table-body");
-    tableBody.innerHTML = "";
+    if (month) url += `&month=${month}`;
+    if (year) url += `&year=${year}`;
 
-    if (!budgets || budgets.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="6" class="empty-table-message">No budgets found</td></tr>`;
-        return;
-    }
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        
+        // Update table body
+        let tableBody = document.getElementById("budget-table-body");
+        tableBody.innerHTML = "";
 
-    budgets.forEach(budget => {
-        let row = document.createElement("tr");
-        row.setAttribute("data-id", budget.id);
-        row.innerHTML = `
-            <td>${budget.year}</td>
-            <td>${budget.month}</td>
-            <td>${budget.category}</td>
-            <td>₹${budget.amount}</td>
-            <td>
-                <button class="edit-btn edit" onclick="editBudget(${budget.id})">✏️</button>
-                <button class="delete-btn delete" onclick="deleteBudget(${budget.id})">❌</button>
-            </td>
-             <td>
-                <input type="checkbox" ${budget.recurring ? "checked" : ""} onclick="toggleRecurring(${budget.id}, this.checked)" />
-            </td>
+        if (!data.budgets || data.budgets.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="empty-table-message">No budgets found</td></tr>';
+            return;
+        }
+
+        data.budgets.forEach(budget => {
+            let row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${budget.year}</td>
+                <td>${budget.month}</td>
+                <td>${budget.category}</td>
+                <td>₹${budget.amount}</td>
+                <td>
+                    <button class="edit-btn edit" onclick="editBudget(${budget.id})">✏️</button>
+                    <button class="delete-btn delete" onclick="deleteBudget(${budget.id})">❌</button>
+                </td>
+                <td>
+                    <input type="checkbox" ${budget.recurring ? "checked" : ""} 
+                    onclick="toggleRecurring(${budget.id}, this.checked)" />
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Update pagination controls
+        let paginationControls = document.getElementById("budget-pagination-controls");
+        paginationControls.innerHTML = `
+            <button onclick="fetchBudgets(1)">First</button>
+            <button onclick="fetchBudgets(${data.current_page - 1})" ${data.current_page === 1 ? 'disabled' : ''}>Prev</button>
+            <span>Page ${data.current_page} / ${data.total_pages}</span>
+            <button onclick="fetchBudgets(${data.current_page + 1})" ${data.current_page === data.total_pages ? 'disabled' : ''}>Next</button>
+            <button onclick="fetchBudgets(${data.total_pages})">Last</button>
         `;
-        tableBody.appendChild(row);
-    });
-
-    // Add pagination controls
-    let paginationControls = document.getElementById("budget-pagination-controls");
-    paginationControls.innerHTML = `
-        <button onclick="fetchBudgets(1)">First</button>
-        <button onclick="fetchBudgets(${data.current_page - 1})" ${data.current_page === 1 ? 'disabled' : ''}>Prev</button>
-        <span>Page ${data.current_page} / ${data.total_pages}</span>
-        <button onclick="fetchBudgets(${data.current_page + 1})" ${data.current_page === data.total_pages ? 'disabled' : ''}>Next</button>
-        <button onclick="fetchBudgets(${data.total_pages})">Last</button>
-    `;
+    } catch (error) {
+        console.error('Error fetching budgets:', error);
+    }
 }
 
 // Add new budget
@@ -360,6 +363,7 @@ function handleBudgetFormSubmit(event) {
         document.getElementById("year-select").value = year; // Keep selected year
         document.getElementById("month-select").value = month; // Keep selected month
         document.getElementById("set-category-amount-section").style.display = "none";
+        document.getElementById("set-budget-period-btn").style.display = "block"; // Show the button again
     });
 }
 
@@ -434,11 +438,82 @@ document.getElementById("set-budget-btn").addEventListener("click", function() {
 document.getElementById("close-budget-popup-btn").addEventListener("click", function() {
     document.getElementById("budget-popup").style.display = "none";
     document.body.style.overflow = "auto"; // Enable background scrolling
+    document.getElementById("budget-form").reset();
+    document.getElementById("set-category-amount-section").style.display = "none";
+    document.getElementById("set-budget-period-btn").style.display = "block"; // Show the button
 });
 
-// Handle set budget button click
+// Handle set budget period button click
 document.getElementById("set-budget-period-btn").addEventListener("click", function() {
+    const year = document.getElementById("year-select").value;
+    const month = document.getElementById("month-select").value;
+
+    if (!year || !month) {
+        showTemporaryAlert("😯 Please select both Year and Month 😅", "error");
+        return;
+    }
+
+    document.getElementById("set-budget-period-btn").style.display = "none"; // Hide the button
     document.getElementById("set-category-amount-section").style.display = "block";
+});
+
+// Show add expense popup with form reset
+document.getElementById("add-expense-btn").addEventListener("click", function() {
+    document.getElementById("expense-form").reset();
+    document.getElementById("expense-id").value = "";
+    document.getElementById("file-upload-label").textContent = "Upload File";
+    document.getElementById("add-expense-popup").style.display = "flex";
+    document.body.style.overflow = "hidden";
+});
+
+// Show budget popup with form reset
+document.getElementById("set-budget-btn").addEventListener("click", function() {
+    document.getElementById("budget-form").reset();
+    document.getElementById("budget-id").value = "";
+    document.getElementById("set-category-amount-section").style.display = "none";
+    document.getElementById("set-budget-period-btn").style.display = "block"; // Show the button
+    document.getElementById("budget-popup").style.display = "flex";
+    document.body.style.overflow = "hidden";
+});
+
+async function loadAllYearDropdowns() {
+    try {
+        const response = await fetch(`${API_URL}/get_budget_years`);
+        const data = await response.json();
+        const yearDropdowns = ['year', 'pieYear', 'year-select', 'budget-year-select'];
+        
+        yearDropdowns.forEach(dropdownId => {
+            const dropdown = document.getElementById(dropdownId);
+            if (dropdown) {
+                // Keep only the first option (Select Year/All Years)
+                const firstOption = dropdown.options[0];
+                dropdown.innerHTML = '';
+                dropdown.appendChild(firstOption);
+                
+                // Sort years in descending order
+                const sortedYears = data.years.sort((a, b) => b - a);
+                
+                sortedYears.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (year === new Date().getFullYear()) {
+                        option.selected = true;
+                    }
+                    dropdown.appendChild(option);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error loading years:', error);
+    }
+}
+
+// Update the DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllYearDropdowns();  // Replace loadBudgetYears() with this
+    updateCharts();
+    // ...rest of your existing initialization code...
 });
 
 // Initialization
@@ -458,8 +533,6 @@ function showTemporaryAlert(message, type = 'info') {
     }, 3000);
 }
 
-
-
 function initializeDateFilters() {
     // Set default date range to last 7 days
     const today = new Date();
@@ -473,13 +546,17 @@ function initializeDateFilters() {
     toDateInput.valueAsDate = today;
 }
 
-// Call initializeDateFilters on page load
-window.addEventListener("load", function() {
-    populateYearSelect();
-    initializeDateFilters(); // Initialize date filters to last 7 days
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('budget-filter-btn').addEventListener('click', () => fetchBudgets(1));
+    document.getElementById('budget-refresh-btn').addEventListener('click', () => {
+        document.getElementById('budget-month-select').value = '';
+        document.getElementById('budget-year-select').value = '';
+        fetchBudgets(1);
+    });
 });
 
-document.getElementById("dark-mode-toggle").addEventListener("click", function() {
-    document.body.classList.toggle("dark-mode");
-  });
-  
+// Call initializeDateFilters on page load
+window.addEventListener("load", function() {
+    initializeDateFilters(); // Initialize date filters to last 7 days
+});
