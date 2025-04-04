@@ -19,7 +19,7 @@ import plotly.graph_objects as go
 from apscheduler.schedulers.background import BackgroundScheduler 
 import pdfkit  
 from threading import Thread
-from flask_migrate import Migrate
+# from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.secret_key = "unifiedfamilyfinancetracker"
@@ -32,7 +32,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = "uploads"
 
 db.init_app(app)
-migrate = Migrate(app, db)  # Add this line after db.init_app(app)
+# migrate = Migrate(app, db) 
 
 # Configure Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
