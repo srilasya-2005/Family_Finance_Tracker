@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
 from flask_mail import Mail, Message
 from functools import wraps
-from flask_cors import CORS
 from datetime import datetime, timedelta,timezone
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
