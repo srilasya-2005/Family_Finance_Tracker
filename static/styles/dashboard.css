@@ -130,7 +130,7 @@ nav {
   display: flex;
   gap: 15px;
   flex: 2;
-  justify-content: center;
+  justify-content: flex-end;
 }
 nav button {
   padding: 10px 15px;
