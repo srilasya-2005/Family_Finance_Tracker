@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Family Finance Tracker{% endblock %}</title>
+    <title>{% block title %}Unified Family Finance Tracker{% endblock %}</title>
     {% block styles %}{% endblock %}
     <link rel="icon"  href="{{ url_for('static', filename='images/logo.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -23,7 +23,7 @@
               </span>
             </div>
             <!-- Main heading -->
-            <h1 style="font-size: 20px; margin-right: 80px;">FAMILY FINANCE TRACKER</h1>
+            <h1 style="font-size: 20px; margin-right: 80px;">UNIFIED FAMILY FINANCE TRACKER</h1>
           </div>
           
           
@@ -35,7 +35,7 @@
             <button id="budget-btn" class="hover-effect" style="color:black" onclick="window.location.href='/dashboard'">Expense & Budget Management</button>
             <button id="insights-btn" class="hover-effect" style="color:black" onclick="window.location.href='/savings'">Savings Management</button>
             <button class="logout-btn" onclick="if(confirm('Are you sure you want to logout?')) window.location.href='/logout'">Logout</button>
-            <button id="dark-mode-toggle">🌙</button>
+            <button id="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
         </nav>
     </header>
 
@@ -70,9 +70,9 @@
                 <h3>About Family Finance Tracker</h3>
                 <p>A comprehensive solution for managing family finances, budgets, and expenses with advanced tracking and visualization tools.</p>
                 <div class="contact">
-                    <p><span>📞</span> +1 234 567 8900</p>
-                    <p><span>✉️</span> support@familyfinance.com</p>
-                    <p><span>🏢</span> 123 Finance Street, Money City, MC 12345</p>
+                    <p><span>📞</span>+91 9876543210</p>
+                    <p><span>✉️</span>unifiedfamilyfinancetracker1@gmail.com</p>
+                    <p><span>🏢</span>Bengaluru, Karnataka 560100, India</p>
                 </div>
             </div>
             <div class="footer-section links">
@@ -124,6 +124,18 @@
             setInterval(displayRandomMessage, 3000);
 
         });
+
+        function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        document.querySelector("header").classList.toggle("dark-mode");
+        document.querySelectorAll("nav button").forEach(button => button.classList.toggle("dark-mode"));
+        document.querySelector(".table-list").classList.toggle("dark-mode");
+        document.querySelectorAll("table").forEach(table => table.classList.toggle("dark-mode"));
+        document.querySelectorAll(".form-popup").forEach(form => form.classList.toggle("dark-mode"));
+        document.querySelectorAll(".close-btn").forEach(button => button.classList.toggle("dark-mode"));
+        document.querySelectorAll("form button").forEach(button => button.classList.toggle("dark-mode"));
+        saveDarkModePreference();
+    }
     </script>
 </body>
 </html>
