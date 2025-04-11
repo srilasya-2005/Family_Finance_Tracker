@@ -1,32 +1,42 @@
-# Expense Tracker  
+# Expense Tracker
 
-A simple Expense Tracker web application with a Flask backend and a frontend built using HTML, CSS, and JavaScript. The app allows users to add, edit, and delete expenses while storing data in a SQLite database using SQLAlchemy.  
+**A simple and elegant web application to manage your expenses effortlessly.**
 
-##  Features  
-- Add, edit, and delete expenses  
-- Store expense details in a database  
-- Responsive UI with a clean design  
+## Overview
+The Expense Tracker is built with a Flask backend and a dynamic frontend using HTML, CSS, and JavaScript. It empowers users to add, edit, and delete expense entries while storing all data securely in a SQLite database through SQLAlchemy.
 
-## Installation  (INSTRUCTIONS TO FOLLOW TO START APPLICATION)
+## Key Features
+- Add, edit, and delete expense records.
+- Database integration for persistent data storage.
+- Responsive user interface with a clean and intuitive design.
 
-1. **Create a virtual environment (optional but recommended)**
-    python -m venv .venv
-    .venv/scripts/activate  
+## Installation Guide
+Follow these steps to set up and run the application:
 
-2. **Install dependencies**
-    pip install -r requirements.txt
+1. **Create a Virtual Environment (Optional but Recommended):**  
+   ```
+   python -m venv .venv  
+   .venv/scripts/activate  
+   ```
 
-3. **Run the Flask server**
-    python app.py 
-    **OR**
-    flask run
-4. **Open the server by pressing CTRL + CliCK**
-    http://127.0.0.1:5000 
+2. **Install Dependencies:**  
+   ```
+   pip install -r requirements.txt  
+   ```
+
+3. **Start the Flask Server:**  
+   ```
+   python app.py  
+   OR  
+   flask run  
+   ```
+
+4. **Access the Application:**  
+   Open the following link in your browser: [http://127.0.0.1:5000](http://127.0.0.1:5000)
+
+## Technologies Used
+- **Backend:** Flask (Python framework)
+- **Database:** SQLite (via SQLAlchemy ORM)
+- **Frontend:** HTML, CSS, JavaScript
 
 
-
- **Technologies Used**
-    Flask (Backend framework)
-    SQLAlchemy (Database ORM)
-    HTML, CSS, JavaScript (Frontend)
-    SQLite (Database)
